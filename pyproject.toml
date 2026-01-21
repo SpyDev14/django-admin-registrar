@@ -1,0 +1,26 @@
+[project]
+name = "django-admin-registrator"
+version = "0.1"
+description = ""
+authors = [
+	{ name = "SpyDev14", email = "135313844+SpyDev14@users.noreply.github.com" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+	'django',
+	'colorama',
+]
+
+[project.urls]
+Homepage = "https://github.com/SpyDev14/django-admin-registrator"
+Issues = "https://github.com/pypa/django-admin-registrator/issues"
+
+[tool.poetry]
+packages = [
+	{ include = "admin_registrator", from = "." }
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
