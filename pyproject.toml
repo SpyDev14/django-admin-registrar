@@ -1,5 +1,5 @@
 [project]
-name = "django-admin-registrator"
+name = "django-admin-registrar"
 version = "0.1"
 description = ""
 authors = [
@@ -9,16 +9,15 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
 	'django',
-	'colorama',
 ]
 
 [project.urls]
-Homepage = "https://github.com/SpyDev14/django-admin-registrator"
-Issues = "https://github.com/pypa/django-admin-registrator/issues"
+Homepage = "https://github.com/SpyDev14/django-admin-registrar"
+Issues = "https://github.com/pypa/django-admin-registrar/issues"
 
 [tool.poetry]
 packages = [
-	{ include = "admin_registrator", from = "." }
+	{ include = "admin_registrar", from = "." }
 ]
 
 [build-system]
