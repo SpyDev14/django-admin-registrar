@@ -5,7 +5,7 @@ from django.contrib.admin 	import ModelAdmin, site, options
 from django.db.models 		import Model
 from django.apps 			import AppConfig
 
-from admin_registrar.resolvers	import first_mro_match_resolver
+from admin_registrar.resolvers	import AdminsResolver, first_mro_match_resolver
 from admin_registrar._utils 	import typename
 from admin_registrar.conf 		import admin_reg_settings
 
@@ -36,28 +36,83 @@ class AdminRegistrar:
 			excluded_models: 	set[type[Model]] | None = None,
 			hidden_models: 		set[type[Model]] | None = None,
 
-			default_admin_resolver: Callable[[type[Model]], type[ModelAdmin]] = first_mro_match_resolver,
+			admins_resolver: AdminsResolver \
+				= admin_reg_settings.DEFAULT_ADMINS_RESOLVER,
 		):
 		self._app = app
 		self._excluded_models 	= excluded_models or set()
 		self._hidden_models 	= hidden_models or set()
 		self._admin_classes_for_models = classes_for_models or dict()
-		self._default_admin_resolver = default_admin_resolver
+		self._admins_resolver = admins_resolver
 
 	def exclude(self, model: type[Model]):
+		"""
+		Exclude model from to registration list.
+
+		Example
+		---
+		```python
+		registrar.exclude(SomeModel)
+		```
+		"""
 		self._excluded_models.add(model)
 
-	def exclude_models(self, models: Iterable[type[Model]]):
+	def exclude_several(self, models: Iterable[type[Model]]):
+		"""
+		Exclude several models from to registration list.
+
+		Example
+		---
+		```python
+		registrar.exclude_several([
+			SomeModelOne,
+			SomeModelTwo,
+		])
+		```
+		"""
 		self._excluded_models.update(models)
 
-	def exclude_inline(self, inline_class: type[options.InlineModelAdmin]):
-		self.exclude(inline_class.model)
-		return inline_class
+	def exclude_inline(self, inline: type[options.InlineModelAdmin]):
+		"""
+		Exclude model who used in this inline.
+		Works with decorator syntax
+
+		Example
+		---
+		```python
+		@registrar.exclude_inline
+		class ProductImageInline(TabularInline):
+			model = ProductImage
+		# Or so
+		registrar.exclude_inline(ProductImageInline)
+		```
+		"""
+		self.exclude(inline.model)
+		return inline
 
 	def set_admin_class_for_model(self, model: type[Model], admin_class: type[ModelAdmin]):
 		self._admin_classes_for_models[model] = admin_class
 
 	def set_for_model(self, model: type[Model]):
+		"""
+		Set defined admin class for given model with decorator syntax.
+
+		Example
+		---
+		```
+		@registrar.set_for_model(Product)
+		class ProductAdmin(ModelAdmin):
+			...
+		```
+
+		Please, do not use this method for this:
+		```
+		registrar.set_for_model(Product)(ProductAdmin)
+		```
+
+		Use `registrar.set_admin_class_for_model(Product, ProductAdmin)`
+		instead for better readabillity.
+		"""
 		def decorator(admin_class: type[ModelAdmin]):
 			self.set_admin_class_for_model(model, admin_class)
 			return admin_class
@@ -85,7 +140,7 @@ class AdminRegistrar:
 			elif model in self._admin_classes_for_models:
 				admin_class = self._admin_classes_for_models[model]
 			else:
-				admin_class = self._default_admin_resolver(model)
+				admin_class = self._admins_resolver(model)
 
 			site.register(model, admin_class)
 			_logger.debug(

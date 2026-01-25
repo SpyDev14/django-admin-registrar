@@ -1,8 +1,13 @@
+from typing import Callable
+
 from django.utils.module_loading 	import import_string
 from django.contrib.admin 			import ModelAdmin
 from django.db.models 				import Model
 
 from admin_registrar.conf import admin_reg_settings
+
+
+AdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
 
 # caching
 _PARSED_DEFAULTS: dict[type[Model], type[ModelAdmin]] = {}
@@ -11,7 +16,7 @@ def first_mro_match_resolver(model_class: type[Model]) -> type[ModelAdmin]:
 		_PARSED_DEFAULTS = {
 			import_string(model_path): import_string(admin_path)
 			for model_path, admin_path in
-			admin_reg_settings.DEFAULT_ADMIN_CLASSES.items()
+			admin_reg_settings.ADMIN_CLASSES_FOR_MODELS.items()
 		}
 
 	for cls in model_class.mro():
