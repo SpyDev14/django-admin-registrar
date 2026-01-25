@@ -38,19 +38,24 @@ wheels = [
 ]
 
 [[package]]
-name = "django-admin-registrator"
+name = "django-admin-registrar"
 version = "0.1"
 source = { editable = "." }
 dependencies = [
-    { name = "colorama" },
     { name = "django" },
+]
+
+[package.optional-dependencies]
+colorama = [
+    { name = "colorama" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "colorama" },
+    { name = "colorama", marker = "extra == 'colorama'" },
     { name = "django" },
 ]
+provides-extras = ["colorama"]
 
 [[package]]
 name = "sqlparse"

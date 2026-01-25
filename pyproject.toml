@@ -1,7 +1,7 @@
 [project]
 name = "django-admin-registrar"
 version = "0.1"
-description = ""
+description = "Python Django package for convenient registration of models in the admin area without a boilerplate in a declarative style."
 authors = [
 	{ name = "SpyDev14", email = "135313844+SpyDev14@users.noreply.github.com" }
 ]
@@ -10,10 +10,34 @@ requires-python = ">=3.10"
 dependencies = [
 	'django',
 ]
+classifiers = [
+	"Environment :: Web Environment",
+	"Framework :: Django",
+	"Intended Audience :: Developers",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3 :: Only",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Programming Language :: Python :: 3.14",
+	"Topic :: Internet :: WWW/HTTP",
+	"Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+	"Topic :: Internet :: WWW/HTTP :: WSGI",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+]
+[project.optional-dependencies]
+colorama = [
+	'colorama',
+]
+license = ["MIT"]
+license-files = ["LICEN[CS]E*"]
 
 [project.urls]
 Homepage = "https://github.com/SpyDev14/django-admin-registrar"
-Issues = "https://github.com/pypa/django-admin-registrar/issues"
+Issues = "https://github.com/SpyDev14/django-admin-registrar/issues"
 
 [tool.poetry]
 packages = [
@@ -21,5 +45,5 @@ packages = [
 ]
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core>=3.0.0"]
 build-backend = "poetry.core.masonry.api"

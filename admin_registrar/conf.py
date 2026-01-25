@@ -4,7 +4,7 @@ from django.utils.module_loading 	import import_string
 from django.contrib.admin 			import ModelAdmin
 from django.conf 					import settings as django_settings
 
-from admin_registrar.utils 	import typename
+from admin_registrar._utils 	import typename
 from admin_registrar 			import admin
 
 _CONFIG_DICT_NAME = 'ADMIN_REGISTRATOR'
