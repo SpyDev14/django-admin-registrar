@@ -1,32 +1,17 @@
 from logging 	import getLogger
-from typing 	import Callable, Iterable
+from typing 	import Iterable
 
 from django.contrib.admin 	import ModelAdmin, site, options
 from django.db.models 		import Model
 from django.apps 			import AppConfig
 
-from admin_registrar.resolvers	import AdminsResolver, first_mro_match_resolver
-from admin_registrar._utils 	import typename
-from admin_registrar.conf 		import admin_reg_settings
+from admin_registrar._utils.colors 	import *
+from admin_registrar._utils 		import typename
+from admin_registrar.resolvers		import AdminsResolver
+from admin_registrar.conf 			import settings
 
-
-L_GREEN = ""
-L_RED = ""
-L_MAGENTA = ""
-RESET = ""
 
 _logger = getLogger(__name__)
-
-if admin_reg_settings.COLORED_LOGS:
-	try:
-		from colorama import Fore, Style, init
-		init()
-		L_GREEN = f"{Style.BRIGHT}{Fore.GREEN}"
-		L_RED = f"{Style.BRIGHT}{Fore.RED}"
-		L_MAGENTA = f"{Style.BRIGHT}{Fore.MAGENTA}"
-		RESET = Style.RESET_ALL
-	except ImportError:
-		_logger.error(f"The COLORED_LOGS parameter has been set, but you do not have the 'colorama' package installed.")
 
 class AdminRegistrar:
 	def __init__(self,
@@ -36,8 +21,7 @@ class AdminRegistrar:
 			excluded_models: 	set[type[Model]] | None = None,
 			hidden_models: 		set[type[Model]] | None = None,
 
-			admins_resolver: AdminsResolver \
-				= admin_reg_settings.DEFAULT_ADMINS_RESOLVER,
+			admins_resolver: AdminsResolver = settings.DEFAULT_ADMINS_RESOLVER,
 		):
 		self._app = app
 		self._excluded_models 	= excluded_models or set()
@@ -74,8 +58,7 @@ class AdminRegistrar:
 
 	def exclude_inline(self, inline: type[options.InlineModelAdmin]):
 		"""
-		Exclude model who used in this inline.
-		Works with decorator syntax
+		Exclude model who used in given inline.
 
 		Example
 		---
@@ -135,7 +118,7 @@ class AdminRegistrar:
 
 			middle_log_text = "succesful registered with"
 			if model in self._hidden_models:
-				admin_class = admin_reg_settings.HIDDEN_ADMIN_CLASS
+				admin_class = settings.HIDDEN_ADMIN_CLASS
 				middle_log_text = "was hidden by"
 			elif model in self._admin_classes_for_models:
 				admin_class = self._admin_classes_for_models[model]
