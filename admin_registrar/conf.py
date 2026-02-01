@@ -3,14 +3,13 @@ from typing 	import Generic, TypeVar, Self, overload
 
 from django.utils.module_loading 	import import_string
 from django.contrib.admin 			import ModelAdmin
-from django.db.models 				import Model
 from django.conf 					import settings as django_settings
 
 from admin_registrar.resolvers 	import AdminsResolver, first_mro_match_resolver
 from admin_registrar._utils 	import typename
 from admin_registrar.admin 		import HiddenAdmin
 
-_CONFIG_DICT_NAME = 'ADMIN_REGISTRATOR'
+_CONFIG_DICT_NAME = 'ADMIN_REGISTRAR'
 _ADMIN_REGISTRATION_CONFIG = getattr(django_settings, _CONFIG_DICT_NAME, {})
 if not isinstance(_ADMIN_REGISTRATION_CONFIG, dict):
 	raise TypeError(f'{_CONFIG_DICT_NAME} should be a dict, got {typename(_ADMIN_REGISTRATION_CONFIG)}.')
@@ -18,7 +17,7 @@ if not isinstance(_ADMIN_REGISTRATION_CONFIG, dict):
 _T = TypeVar('_T')
 # Generic for default type hints (if not specified)
 class ConfValue(Generic[_T]):
-	def __set_name__(self, name: str):
+	def __set_name__(self, owner: type, name: str):
 		self._name = name
 
 	def __init__(self, default: _T):
@@ -29,16 +28,16 @@ class ConfValue(Generic[_T]):
 
 	@cached_property
 	def _value(self):
-		self._get_value()
+		return self._get_value()
 
 	def _get_value(self):
 		return _ADMIN_REGISTRATION_CONFIG.get(self._name, self._default)
 
 	@overload
-	def __get__(self, instance: None, cls: type) -> Self[_T]: ...
+	def __get__(self, instance: None, owner: type) -> Self: ...
 	@overload
-	def __get__(self, instance: object, cls: type) -> _T: ...
-	def __get__(self, instance: object | None, cls: type) -> Self | _T:
+	def __get__(self, instance: object, owner: type) -> _T: ...
+	def __get__(self, instance: object | None, owner: type) -> Self | _T:
 		if not instance:
 			return self
 		return self._value
@@ -61,3 +60,11 @@ class Settings:
 	COLORED_LOGS = ConfValue(False)
 
 settings = Settings()
+# settings.HIDDEN_ADMIN_CLASS
+# settings.ADMIN_CLASSES_FOR_MODELS
+# settings.DEFAULT_ADMINS_RESOLVER
+# settings.COLORED_LOGS
+# Settings.HIDDEN_ADMIN_CLASS
+# Settings.ADMIN_CLASSES_FOR_MODELS
+# Settings.DEFAULT_ADMINS_RESOLVER
+# Settings.COLORED_LOGS

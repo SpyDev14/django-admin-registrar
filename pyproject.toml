@@ -1,6 +1,6 @@
 [project]
 name = "django-admin-registrar"
-version = "0.1"
+version = "0.2"
 description = "Python Django package for convenient registration of models in the admin area without a boilerplate in a declarative style."
 authors = [
 	{ name = "SpyDev14", email = "135313844+SpyDev14@users.noreply.github.com" }
@@ -48,5 +48,7 @@ packages = [
 ]
 
 [build-system]
-requires = ["poetry-core>=3.0.0"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
+# requires = ["uv_build >= 0.9.26"]
+# build-backend = "uv_build"

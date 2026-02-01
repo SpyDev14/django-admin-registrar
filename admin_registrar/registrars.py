@@ -3,7 +3,7 @@ from typing 	import Iterable
 
 from django.contrib.admin 	import ModelAdmin, site, options
 from django.db.models 		import Model
-from django.apps 			import AppConfig
+from django.apps 			import AppConfig, apps
 
 from admin_registrar._utils.colors 	import *
 from admin_registrar._utils 		import typename
@@ -15,7 +15,7 @@ _logger = getLogger(__name__)
 
 class AdminRegistrar:
 	def __init__(self,
-			app: AppConfig,
+			app: type[AppConfig],
 			*,
 			classes_for_models: dict[type[Model], type[ModelAdmin]] | None = None,
 			excluded_models: 	set[type[Model]] | None = None,
@@ -105,8 +105,8 @@ class AdminRegistrar:
 		self._hidden_models.add(model_class)
 
 	def peform_register(self):
-		_logger.debug('-' * 48)
-		for model in self._app.get_models():
+		_logger.debug(f'-- App {L_MAGENTA}{self._app.name}{RESET} -------')
+		for model in apps.get_app_config(self._app.name).get_models():
 			START_LOG_TEXT = (
 				f"model {L_GREEN}{typename(model)}{RESET} "
 				f"from {L_MAGENTA}{self._app.name}{RESET}"

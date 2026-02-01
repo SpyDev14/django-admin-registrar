@@ -4,7 +4,8 @@ from django.utils.module_loading 	import import_string
 from django.contrib.admin 			import ModelAdmin
 from django.db.models 				import Model
 
-from admin_registrar.conf import settings
+# Circular Import
+# from admin_registrar.conf import settings
 
 
 AdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
@@ -12,6 +13,9 @@ AdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
 # caching
 _PARSED_DEFAULTS: dict[type[Model], type[ModelAdmin]] = {}
 def first_mro_match_resolver(model_class: type[Model]) -> type[ModelAdmin]:
+	from admin_registrar.conf import settings
+	global _PARSED_DEFAULTS
+
 	if not _PARSED_DEFAULTS:
 		_PARSED_DEFAULTS = {
 			import_string(model_path): import_string(admin_path)

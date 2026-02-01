@@ -1,1 +1,1 @@
-from .registrator import AdminRegistrator
+from .registrars import AdminRegistrar
