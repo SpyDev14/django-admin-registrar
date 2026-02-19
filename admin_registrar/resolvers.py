@@ -9,6 +9,7 @@ from django.db.models 				import Model
 
 
 AdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
+RegisterOnSite = Callable[[type[Model], type[ModelAdmin]], None]
 
 # caching
 _PARSED_DEFAULTS: dict[type[Model], type[ModelAdmin]] = {}

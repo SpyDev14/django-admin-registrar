@@ -2,10 +2,10 @@ from functools 	import cached_property
 from typing 	import Generic, TypeVar, Self, overload
 
 from django.utils.module_loading 	import import_string
-from django.contrib.admin 			import ModelAdmin
+from django.contrib.admin 			import ModelAdmin, site
 from django.conf 					import settings as django_settings
 
-from admin_registrar.resolvers 	import AdminsResolver, first_mro_match_resolver
+from admin_registrar.resolvers 	import AdminsResolver, RegisterOnSite, first_mro_match_resolver
 from admin_registrar._utils 	import typename
 from admin_registrar.admin 		import HiddenAdmin
 
@@ -52,11 +52,22 @@ class ConfImportableValue(ConfValue[_T]):
 			else self._default
 		)
 
-
+# TODO: Сделать нормальный конфиг
+# AdminRegistrar принимает kwarg config: AdminRegistrarConfig
+# AdminRegistrarConfig(*, base: AdminRegistrarConfig = admin_registrar.conf.settings, **kwargs)
+# AdminRegistrarConfig(
+#     ADMINS_RESOLVER = ...,
+# )
+# В AdminRegistrar:
+#     self._conf.ADMINS_RESOLVER(model)
+#     вместо
+#     self._admins_resolver(model)
+# Что-то такое
 class Settings:
-	HIDDEN_ADMIN_CLASS:       ConfImportableValue[ModelAdmin] = ConfImportableValue(HiddenAdmin)
-	ADMIN_CLASSES_FOR_MODELS: ConfValue[dict[str, str]]       = ConfValue({})
-	DEFAULT_ADMINS_RESOLVER:  ConfImportableValue[AdminsResolver] = ConfImportableValue(first_mro_match_resolver)
+	HIDDEN_ADMIN_CLASS:       ConfImportableValue[type[ModelAdmin]] = ConfImportableValue(HiddenAdmin)
+	ADMIN_CLASSES_FOR_MODELS: ConfValue[dict[str, str]]             = ConfValue({})
+	ADMINS_RESOLVER:          ConfImportableValue[AdminsResolver]   = ConfImportableValue(first_mro_match_resolver)
+	REGISTER_ON_SITE:         ConfImportableValue[RegisterOnSite]   = ConfImportableValue(site.register)
 	COLORED_LOGS = ConfValue(False)
 
 settings = Settings()

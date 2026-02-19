@@ -48,7 +48,5 @@ packages = [
 ]
 
 [build-system]
-requires = ["poetry-core>=2.0.0"]
+requires = ["poetry-core>=2.0.0", "poetry-dynamic-versioning"]
 build-backend = "poetry.core.masonry.api"
-# requires = ["uv_build >= 0.9.26"]
-# build-backend = "uv_build"
