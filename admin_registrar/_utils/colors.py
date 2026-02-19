@@ -5,7 +5,7 @@ from admin_registrar.conf import settings, Settings
 
 _logger = getLogger(__name__)
 
-class _Palette(Protocol):
+class _Palette:
 	BLACK: 	str = ''
 	RED: 	str = ''
 	GREEN: 	str = ''
@@ -26,7 +26,7 @@ class _Palette(Protocol):
 
 	RESET: str = ''
 
-class _AnsiPalette(Protocol):
+class _AnsiPalette:
 	BLACK: 	str = '\033[30m'
 	RED: 	str = '\033[31m'
 	GREEN: 	str = '\033[32m'
@@ -47,16 +47,14 @@ class _AnsiPalette(Protocol):
 
 	RESET: 	str = '\033[39m'
 
-Fore: type[_Palette] = _Palette
+Fore = _Palette
 
 if settings.COLORED_LOGS:
 	try:
 		from colorama import init
 		init()
-	except ImportError: _logger.info(
-		f'The {Settings.COLORED_LOGS} parameter has been set,'
-		' but you do not have the "colorama" package installed. '
-		' We rec'
-	)
+	except ImportError:
+		pass
+	# NOTE: Указать в документации, что поддерживается colorama init для cmd.exe
 
 	Fore = _AnsiPalette

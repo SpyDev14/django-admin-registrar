@@ -5,7 +5,7 @@ from django.contrib.admin 	import ModelAdmin, options
 from django.db.models 		import Model
 from django.apps 			import AppConfig, apps
 
-from admin_registrar._utils.colors 	import *
+from admin_registrar._utils.colors 	import Fore
 from admin_registrar._utils 		import typename
 from admin_registrar.resolvers		import AdminsResolver, RegisterOnSite
 from admin_registrar.conf 			import settings
@@ -140,15 +140,15 @@ class AdminRegistrar:
 			_logger.error(f'An attempt to re-register for {self._app.name} app.')
 			return
 
-		_logger.debug(f'-- Start {L_MAGENTA}{self._app.name}{RESET} registration -------')
+		_logger.debug(f'-- Start {Fore.L_MAGENTA}{self._app.name}{Fore.RESET} registration -------')
 		for model in apps.get_app_config(self._app.name).get_models():
 			START_LOG_TEXT = (
-				f"model {L_GREEN}{typename(model)}{RESET} "
-				f"from {L_MAGENTA}{self._app.name}{RESET}"
+				f"model {Fore.L_GREEN}{typename(model)}{Fore.RESET} "
+				f"from {Fore.L_MAGENTA}{self._app.name}{Fore.RESET}"
 			)
 
 			if model in self._excluded_models:
-				_logger.debug(f"{START_LOG_TEXT} is {L_RED}excluded{RESET}.")
+				_logger.debug(f"{START_LOG_TEXT} is {Fore.L_RED}excluded{Fore.RESET}.")
 				continue
 
 			middle_log_text = "succesful registered with"
@@ -162,7 +162,7 @@ class AdminRegistrar:
 
 			self._register_on_site(model, admin_class)
 			_logger.debug(
-				f"{START_LOG_TEXT} {middle_log_text} {L_GREEN}{typename(admin_class)}{RESET} admin class."
+				f"{START_LOG_TEXT} {middle_log_text} {Fore.L_GREEN}{typename(admin_class)}{Fore.RESET} admin class."
 			)
 
 		self._already_registered = True
