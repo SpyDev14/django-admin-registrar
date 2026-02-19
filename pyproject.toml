@@ -1,6 +1,6 @@
 [project]
 name = "django-admin-registrar"
-version = "v0.1.0.dev260220+0135" #v0.1.0.devYYMMDD+HHMM
+version = "v0.1.0.dev260220+0144" #v<major>.<minor>.<patch>.devYYMMDD+HHMM
 description = "Python Django package for convenient registration of models in the admin area without a boilerplate in a declarative style."
 authors = [
 	{ name = "SpyDev14", email = "135313844+SpyDev14@users.noreply.github.com" }
