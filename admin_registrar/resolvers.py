@@ -8,7 +8,7 @@ from django.db.models 				import Model
 # from admin_registrar.conf import settings
 
 
-AdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
+DefaultAdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
 RegisterOnSite = Callable[[type[Model], type[ModelAdmin]], None]
 
 # caching

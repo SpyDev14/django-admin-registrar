@@ -1,13 +1,14 @@
-from logging 	import getLogger
-from typing 	import Iterable
+from dataclasses 	import dataclass
+from logging 		import getLogger
+from typing 		import Iterable
 
-from django.contrib.admin 	import ModelAdmin, options
+from django.contrib.admin 	import ModelAdmin, options, site
 from django.db.models 		import Model
 from django.apps 			import AppConfig, apps
 
 from admin_registrar._utils.colors 	import Fore
 from admin_registrar._utils 		import typename
-from admin_registrar.resolvers		import AdminsResolver, RegisterOnSite
+from admin_registrar.resolvers		import DefaultAdminsResolver, RegisterOnSite
 from admin_registrar.conf 			import settings
 
 
@@ -17,20 +18,18 @@ class AdminRegistrar:
 	def __init__(self,
 			app: type[AppConfig],
 			*,
-			classes_for_models: dict[type[Model], type[ModelAdmin]] | None = None,
+			admins_for_models: 	dict[type[Model], type[ModelAdmin]] | None = None,
 			excluded_models: 	set[type[Model]] | None = None,
 			hidden_models: 		set[type[Model]] | None = None,
 
-			admins_resolver:  AdminsResolver = settings.ADMINS_RESOLVER,
-			register_on_site: RegisterOnSite = settings.REGISTER_ON_SITE,
+			default_admins_resolver: DefaultAdminsResolver = settings.DEFAULT_ADMINS_RESOLVER,
 		):
 		self._app = app
 		self._excluded_models 	= excluded_models or set()
 		self._hidden_models 	= hidden_models or set()
-		self._admin_classes_for_models = classes_for_models or dict()
+		self._admins_for_models = admins_for_models or dict()
 
-		self._admins_resolver 	= admins_resolver
-		self._register_on_site 	= register_on_site
+		self._resolve_default_admin_for = default_admins_resolver
 
 		self._already_registered: bool = False
 
@@ -93,7 +92,7 @@ class AdminRegistrar:
 		registrar.set_for_model(Product)(ProductAdmin)
 		```
 		"""
-		self._admin_classes_for_models[model] = admin_class
+		self._admins_for_models[model] = admin_class
 
 	def set_for_model(self, model: type[Model]):
 		"""
@@ -135,32 +134,57 @@ class AdminRegistrar:
 		"""
 		self._hidden_models.add(model_class)
 
+	def _register(self, model_class: type[Model], admin_class: type[ModelAdmin]) -> None:
+		site.register(model_class, admin_class)
+
+	@dataclass
+	class _ResolveAdminResult:
+		admin_class: type[ModelAdmin]
+		log_message: str
+
+	def _resolve_admin_for(self, model_class: type[Model]) -> _ResolveAdminResult:
+		if model_class in self._hidden_models:
+			return self._ResolveAdminResult(settings.HIDDEN_ADMIN_CLASS, "was hidden by")
+
+		admin_class = (
+			self._admins_for_models.get(model_class)
+			or self._resolve_default_admin_for(model_class)
+		)
+
+		return self._ResolveAdminResult(admin_class, "succesful registered with")
+
+	"""
+	def _make_log_message_body(self, model_class: type[Model], admin_class: type[ModelAdmin]) -> str:
+		middle_log_text = (
+			"was hidden by" if model_class in self._hidden_models
+			else "succesful registered with"
+		)
+
+		return f"{middle_log_text} {Fore.L_GREEN}{typename(admin_class)}{Fore.RESET} admin class."
+	"""
+
 	def peform_register(self):
 		if self._already_registered:
 			_logger.error(f'An attempt to re-register for {self._app.name} app.')
 			return
 
 		_logger.debug(f'-- Start {Fore.L_MAGENTA}{self._app.name}{Fore.RESET} registration -------')
-		for model in apps.get_app_config(self._app.name).get_models():
+		for model_class in apps.get_app_config(self._app.name).get_models():
 			START_LOG_TEXT = (
-				f"model {Fore.L_GREEN}{typename(model)}{Fore.RESET} "
+				f"model {Fore.L_GREEN}{typename(model_class)}{Fore.RESET} "
 				f"from {Fore.L_MAGENTA}{self._app.name}{Fore.RESET}"
 			)
 
-			if model in self._excluded_models:
+			if model_class in self._excluded_models:
 				_logger.debug(f"{START_LOG_TEXT} is {Fore.L_RED}excluded{Fore.RESET}.")
 				continue
 
-			middle_log_text = "succesful registered with"
-			if model in self._hidden_models:
-				admin_class = settings.HIDDEN_ADMIN_CLASS
-				middle_log_text = "was hidden by"
-			elif model in self._admin_classes_for_models:
-				admin_class = self._admin_classes_for_models[model]
-			else:
-				admin_class = self._admins_resolver(model)
+			resolve_res = self._resolve_admin_for(model_class)
+			admin_class = resolve_res.admin_class
+			middle_log_text = resolve_res.log_message
 
-			self._register_on_site(model, admin_class)
+			self._register(model_class, admin_class)
+
 			_logger.debug(
 				f"{START_LOG_TEXT} {middle_log_text} {Fore.L_GREEN}{typename(admin_class)}{Fore.RESET} admin class."
 			)

@@ -5,7 +5,7 @@ from django.utils.module_loading 	import import_string
 from django.contrib.admin 			import ModelAdmin, site
 from django.conf 					import settings as django_settings
 
-from admin_registrar.resolvers 	import AdminsResolver, RegisterOnSite, first_mro_match_resolver
+from admin_registrar.resolvers 	import DefaultAdminsResolver, RegisterOnSite, first_mro_match_resolver
 from admin_registrar._utils 	import typename
 from admin_registrar.admin 		import HiddenAdmin
 
@@ -66,8 +66,7 @@ class ConfImportableValue(ConfValue[_T]):
 class Settings:
 	HIDDEN_ADMIN_CLASS:       ConfImportableValue[type[ModelAdmin]] = ConfImportableValue(HiddenAdmin)
 	ADMIN_CLASSES_FOR_MODELS: ConfValue[dict[str, str]]             = ConfValue({})
-	ADMINS_RESOLVER:          ConfImportableValue[AdminsResolver]   = ConfImportableValue(first_mro_match_resolver)
-	REGISTER_ON_SITE:         ConfImportableValue[RegisterOnSite]   = ConfImportableValue(site.register)
+	DEFAULT_ADMINS_RESOLVER:          ConfImportableValue[DefaultAdminsResolver]   = ConfImportableValue(first_mro_match_resolver)
 	COLORED_LOGS = ConfValue(False)
 
 settings = Settings()

@@ -1,6 +1,6 @@
 [project]
 name = "django-admin-registrar"
-version = "v0.1.0.dev260220+0144" #v<major>.<minor>.<patch>.devYYMMDD+HHMM
+version = "v0.1.0.dev1+2602201000" #<major>.<minor>.<patch>.dev+YYMMDDHHMM
 description = "Python Django package for convenient registration of models in the admin area without a boilerplate in a declarative style."
 authors = [
 	{ name = "SpyDev14", email = "135313844+SpyDev14@users.noreply.github.com" }
@@ -38,9 +38,7 @@ Homepage = "https://github.com/SpyDev14/django-admin-registrar"
 Issues = "https://github.com/SpyDev14/django-admin-registrar/issues"
 
 [project.optional-dependencies]
-colorama = [
-	'colorama',
-]
+colorama = [ 'colorama', ]
 
 [tool.poetry]
 packages = [
