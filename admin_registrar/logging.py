@@ -1,4 +1,4 @@
-from admin_registrar._utils.colors import Fore
+from admin_registrar.utils.colors import Fore
 
 
 RECCOMENDED_FORMATTER = {

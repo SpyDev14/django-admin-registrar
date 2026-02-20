@@ -5,8 +5,8 @@ from django.contrib.admin 	import ModelAdmin, options, site
 from django.db.models 		import Model
 from django.apps 			import AppConfig, apps
 
-from admin_registrar._utils.colors 	import Fore
-from admin_registrar._utils 		import typename
+from admin_registrar.utils.colors 	import Fore
+from admin_registrar.utils 		import typename
 from admin_registrar.resolvers		import DefaultAdminsResolver
 from admin_registrar.conf 			import settings
 
