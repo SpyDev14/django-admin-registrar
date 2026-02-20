@@ -26,7 +26,7 @@ class _Palette:
 
 	RESET: str = ''
 
-class _AnsiPalette:
+class _AnsiPalette(_Palette):
 	BLACK: 	str = '\033[30m'
 	RED: 	str = '\033[31m'
 	GREEN: 	str = '\033[32m'
@@ -47,7 +47,7 @@ class _AnsiPalette:
 
 	RESET: 	str = '\033[39m'
 
-Fore = _Palette
+Fore: type[_Palette] = _Palette
 
 if settings.COLORED_LOGS:
 	try:
