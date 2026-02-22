@@ -6,7 +6,7 @@ from django.contrib.admin 			import ModelAdmin, site
 from django.conf 					import settings as django_settings
 
 from admin_registrar.resolvers 	import DefaultAdminsResolver, RegisterOnSite, first_mro_match_resolver
-from admin_registrar._utils 	import typename
+from admin_registrar.utils 	import typename
 from admin_registrar.admin 		import HiddenAdmin
 
 _CONFIG_DICT_NAME = 'ADMIN_REGISTRAR'
@@ -42,9 +42,7 @@ class ConfValue(Generic[_T]):
 			return self
 		return self._value
 
-# TODO: придумать что-то, чтобы из класса настроек можно было получить доступ к объекту дескриптора (и его полям)
-# Для такого: Settings.COLORED_LOGS.name
-class ConfImportableValue(ConfValue[_T]):
+class ConfImportableVal(ConfValue[_T]):
 	def _get_value(self):
 		specified_path: str = _ADMIN_REGISTRATION_CONFIG.get(self._name, None)
 		return (
@@ -52,21 +50,11 @@ class ConfImportableValue(ConfValue[_T]):
 			else self._default
 		)
 
-# TODO: Сделать нормальный конфиг
-# AdminRegistrar принимает kwarg config: AdminRegistrarConfig
-# AdminRegistrarConfig(*, base: AdminRegistrarConfig = admin_registrar.conf.settings, **kwargs)
-# AdminRegistrarConfig(
-#     ADMINS_RESOLVER = ...,
-# )
-# В AdminRegistrar:
-#     self._conf.ADMINS_RESOLVER(model)
-#     вместо
-#     self._admins_resolver(model)
-# Что-то такое
+
 class Settings:
-	HIDDEN_ADMIN_CLASS:       ConfImportableValue[type[ModelAdmin]] = ConfImportableValue(HiddenAdmin)
-	ADMIN_CLASSES_FOR_MODELS: ConfValue[dict[str, str]]             = ConfValue({})
-	DEFAULT_ADMINS_RESOLVER:          ConfImportableValue[DefaultAdminsResolver]   = ConfImportableValue(first_mro_match_resolver)
+	DEFAULT_ADMINS_RESOLVER: ConfImportableVal[DefaultAdminsResolver] = ConfImportableVal(first_mro_match_resolver)
+	HIDDEN_ADMIN_CLASS:      ConfImportableVal[type[ModelAdmin]]      = ConfImportableVal(HiddenAdmin)
+	ADMINS_FOR_MODELS:       ConfValue[dict[str, str]]                = ConfValue({})
 	COLORED_LOGS = ConfValue(False)
 
 settings = Settings()

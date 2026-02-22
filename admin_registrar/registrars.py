@@ -118,7 +118,7 @@ class AdminRegistrar:
 			return admin_class
 		return decorator
 
-	def hide_model(self, model_class: type[Model]):
+	def hide_model(self, model: type[Model]):
 		"""
 		Регистрирует модель в админ-панели под специальным админ-классом, который
 		отключает её отображение на странице админ-панлеи, но добавляет API эндпоинты
@@ -131,32 +131,32 @@ class AdminRegistrar:
 		  зарегистрированна с настроенным search), или что-то похожее в форме **другой** модели,
 		  но без отображения **этой** модели в общем списке в админ-панели.
 		"""
-		self._hidden_models.add(model_class)
+		self._hidden_models.add(model)
 
-	def _register(self, model_class: type[Model], admin_class: type[ModelAdmin]) -> None:
-		site.register(model_class, admin_class)
+	def _register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
+		site.register(model, admin_class)
 
-	def _resolve_admin_for(self, model_class: type[Model]) -> type[ModelAdmin]:
-		if model_class in self._hidden_models:
+	def _resolve_admin_for(self, model: type[Model]) -> type[ModelAdmin]:
+		if model in self._hidden_models:
 			return settings.HIDDEN_ADMIN_CLASS
 
 		return (
-			self._admins_for_models.get(model_class)
-			or self._resolve_default_admin_for(model_class)
+			self._admins_for_models.get(model)
+			or self._resolve_default_admin_for(model)
 		)
 
-	def _make_log_message(self, model_class: type[Model], admin_class: type[ModelAdmin] | None) -> str:
+	def _make_log_message(self, model: type[Model], admin_class: type[ModelAdmin] | None) -> str:
 		START_LOG_TEXT = (
-			f"model {Fore.L_GREEN}{typename(model_class)}{Fore.RESET} "
+			f"model {Fore.L_GREEN}{typename(model)}{Fore.RESET} "
 			f"from {Fore.L_MAGENTA}{self._app.name}{Fore.RESET}"
 		)
 
 		if admin_class is None:
-			assert model_class in self._excluded_models
+			assert model in self._excluded_models
 			return f"{START_LOG_TEXT} is {Fore.L_RED}excluded{Fore.RESET}."
 
 		middle_log_text = (
-			"was hidden by" if model_class in self._hidden_models
+			"was hidden by" if model in self._hidden_models
 			else "succesful registered with"
 		)
 
@@ -175,7 +175,7 @@ class AdminRegistrar:
 
 			admin_class = self._resolve_admin_for(model_class)
 
-			self._register(model_class, admin_class)
+			self._register_on_site(model_class, admin_class)
 			_logger.debug(self._make_log_message(model_class, admin_class))
 
 		self._registration_performed = True

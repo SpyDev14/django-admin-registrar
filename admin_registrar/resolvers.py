@@ -20,7 +20,7 @@ def first_mro_match_resolver(model_class: type[Model]) -> type[ModelAdmin]:
 		_PARSED_DEFAULTS = {
 			import_string(model_path): import_string(admin_path)
 			for model_path, admin_path in
-			settings.ADMIN_CLASSES_FOR_MODELS.items()
+			settings.ADMINS_FOR_MODELS.items()
 		}
 
 	for cls in model_class.mro():
