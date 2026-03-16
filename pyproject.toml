@@ -1,12 +1,12 @@
 [project]
 name = "django-admin-registrar"
-version = "v0.1.0.dev1+2602201000" #<major>.<minor>.<patch>.dev+YYMMDDHHMM
+version = "0.1.0.beta" #<major>.<minor>.<patch>.dev<number>
 description = "Python Django package for convenient registration of models in the admin area without a boilerplate in a declarative style."
 authors = [
 	{ name = "SpyDev14", email = "135313844+SpyDev14@users.noreply.github.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
 	'django',
 ]
@@ -21,7 +21,6 @@ classifiers = [
 	"Programming Language :: Python",
 	"Programming Language :: Python :: 3",
 	"Programming Language :: Python :: 3 :: Only",
-	"Programming Language :: Python :: 3.10",
 	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
 	"Programming Language :: Python :: 3.13",
@@ -38,7 +37,21 @@ Homepage = "https://github.com/SpyDev14/django-admin-registrar"
 Issues = "https://github.com/SpyDev14/django-admin-registrar/issues"
 
 [project.optional-dependencies]
-colorama = [ 'colorama', ]
+colorama = ['colorama', ]
+
+[dependency-groups]
+dev = [
+	'pytest',
+	'pytest-django',
+
+	'django-solo',
+	'django-mptt',
+	'django-admin-sortable2'
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
 
 [tool.poetry]
 packages = [
@@ -46,5 +59,7 @@ packages = [
 ]
 
 [build-system]
-requires = ["poetry-core>=2.0.0", "poetry-dynamic-versioning"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
+# requires = ["uv_build>=0.9.5,<0.10.0"]
+# build-backend = "uv_build"

@@ -2,11 +2,11 @@ from functools 	import cached_property
 from typing 	import Generic, TypeVar, Self, overload
 
 from django.utils.module_loading 	import import_string
-from django.contrib.admin 			import ModelAdmin, site
+from django.contrib.admin 			import ModelAdmin
 from django.conf 					import settings as django_settings
 
-from admin_registrar.resolvers 	import DefaultAdminsResolver, RegisterOnSite, first_mro_match_resolver
-from admin_registrar.utils 	import typename
+from admin_registrar.resolvers 	import DefaultAdminsResolver, first_mro_match_resolver
+from admin_registrar.utils 		import typename
 from admin_registrar.admin 		import HiddenAdmin
 
 _CONFIG_DICT_NAME = 'ADMIN_REGISTRAR'
@@ -50,19 +50,13 @@ class ConfImportableVal(ConfValue[_T]):
 			else self._default
 		)
 
-
+# Settings can be refactored to `Config` with `base` property and
+# values-nesting for global defaults and local overrides
 class Settings:
+	# DEFAULT_ADMINS_RESOLVER can be refactored!!!
 	DEFAULT_ADMINS_RESOLVER: ConfImportableVal[DefaultAdminsResolver] = ConfImportableVal(first_mro_match_resolver)
 	HIDDEN_ADMIN_CLASS:      ConfImportableVal[type[ModelAdmin]]      = ConfImportableVal(HiddenAdmin)
-	ADMINS_FOR_MODELS:       ConfValue[dict[str, str]]                = ConfValue({})
-	COLORED_LOGS = ConfValue(False)
+	ADMINS_FOR_MODELS = ConfValue({})
+	COLORED_LOGS      = ConfValue(False)
 
 settings = Settings()
-# settings.HIDDEN_ADMIN_CLASS
-# settings.ADMIN_CLASSES_FOR_MODELS
-# settings.DEFAULT_ADMINS_RESOLVER
-# settings.COLORED_LOGS
-# Settings.HIDDEN_ADMIN_CLASS
-# Settings.ADMIN_CLASSES_FOR_MODELS
-# Settings.DEFAULT_ADMINS_RESOLVER
-# Settings.COLORED_LOGS

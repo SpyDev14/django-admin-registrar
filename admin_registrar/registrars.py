@@ -1,12 +1,12 @@
 from logging 	import getLogger
-from typing 	import Iterable
+from typing 	import Iterable, Iterator
 
 from django.contrib.admin 	import ModelAdmin, options, site
 from django.db.models 		import Model
 from django.apps 			import AppConfig, apps
 
 from admin_registrar.utils.colors 	import Fore
-from admin_registrar.utils 		import typename
+from admin_registrar.utils 			import typename
 from admin_registrar.resolvers		import DefaultAdminsResolver
 from admin_registrar.conf 			import settings
 
@@ -28,7 +28,7 @@ class AdminRegistrar:
 		self._hidden_models 	= hidden_models or set()
 		self._admins_for_models = admins_for_models or dict()
 
-		self._resolve_default_admin_for = default_admins_resolver
+		self._default_admins_resolver = default_admins_resolver
 
 		self._registration_performed: bool = False
 
@@ -76,14 +76,14 @@ class AdminRegistrar:
 		self.exclude(inline.model)
 		return inline
 
-	def set_admin_class_for_model(self, model: type[Model], admin_class: type[ModelAdmin]):
+	def set_admin_for_model(self, model: type[Model], admin_class: type[ModelAdmin]):
 		"""
 		Set defined admin class for given model.
 
 		Example
 		---
 		```
-		registrar.set_admin_class_for_model(Product, ProductAdmin)
+		registrar.set_admin_for_model(Product, ProductAdmin)
 		```
 
 		Exists for excluding something like this:
@@ -110,31 +110,81 @@ class AdminRegistrar:
 		registrar.set_for_model(Product)(ProductAdmin)
 		```
 
-		Use `registrar.set_admin_class_for_model(Product, ProductAdmin)`
+		Use `registrar.set_admin_for_model(Product, ProductAdmin)`
 		instead for better readabillity.
 		"""
 		def decorator(admin_class: type[ModelAdmin]):
-			self.set_admin_class_for_model(model, admin_class)
+			self.set_admin_for_model(model, admin_class)
 			return admin_class
 		return decorator
 
-	def hide_model(self, model: type[Model]):
+	def hide(self, model: type[Model]):
 		"""
-		Регистрирует модель в админ-панели под специальным админ-классом, который
-		отключает её отображение на странице админ-панлеи, но добавляет API эндпоинты
-		для взаимодействия с ней.
+		### [En] (Has Ru language below)
+		<hr>
 
-		Примеры использования:
-		- Нужна возможность создавать и управлять моделью через форму **другой** модели, не
-		  добавляя модель в общий список моделей в админ-панели.
-		- Нужно добавить `autocomplete_fields` (модель с autocomplete должна быть
-		  зарегистрированна с настроенным search), или что-то похожее в форме **другой** модели,
-		  но без отображения **этой** модели в общем списке в админ-панели.
+		Registers the model in the admin panel under `HiddenAdmin` (by default).
+		This is a special admin class that allows you to register the model in
+		the admin panel but not display it in the general list (on the left in
+		the standard panel).
+
+		This can be useful when you have a small auxiliary model for another model,
+		for example, "Product Image", "Product Characteristic Type", "Article Tag"
+		(or category; a model with only a name field and a foreign key to the article).
+		You don't want to clutter the general list with these micro‑models, but you
+		need the ability to create/change/delete records of these models through the
+		admin in the main model's form (interaction buttons next to the selection field).
+
+		The standard `HiddenAdmin` from this package allows you to access the list
+		page via the following path: <div>
+
+			`Form with a field for the hidden model => Change => Save => List of
+			hidden model records`.
+		</div>
+
+		You can override the admin class used in the package settings.
+
+		This is to some extent non‑standard functionality. Share your opinion about
+		this feature on the <a href="https://github.com/SpyDev14/django-admin-registrar">package's GitHub</a>.
+		Thank you.
+
+		### [Ru]
+		<hr>
+
+		Регистрирует модель в админ-панели под `HiddenAdmin` (по умолчанию).
+		Это специальный админ-класс, который позволяет зарегистрировать модель
+		в админ-панели, но не отображать её в общем списке (слева в стандартной
+		панели).
+
+		Это может понадобится тогда, когда у вас есть маленькая вспомогательная модель
+		для другой модели, например "Изображение товара", "Тип характеристики товара",
+		"Тег статьи" (или категория; модель с одним только name полем и fk на статью)
+		и вы не хотите загромождать общий список этими микро-моделями, но вам нужна
+		возможность создавать / изменять / удалять записи этих моделей через админку
+		в форме основной модели (кнопки взаимодействия рядом с полем выбора).
+
+		Стандартный `HiddenAdmin` из этого пакета позволяет попасть на страницу списка
+		следущим путём: `Форма с полем на скрытую модель => Изменить => Сохранить =>
+		Список записей скрытой моделей`.
+
+		Вы можете переопределить используемый админ-класс в настройках пакета.
+
+		Это в определённой мере нестандартная функциональность. Поделитесь своим
+		мнением по поводу этой функции на
+		<a href="https://github.com/SpyDev14/django-admin-registrar">github пакета</a>.
+		Спасибо.
 		"""
 		self._hidden_models.add(model)
 
+	def hide_several(self, models: Iterable[type[Model]]):
+		"""Performs `hide` for all given models."""
+		self._hidden_models.update(models)
+
 	def _register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
 		site.register(model, admin_class)
+
+	def _resolve_default_admin_for(self, model: type[Model]) -> type[ModelAdmin]:
+		return self._default_admins_resolver(model)
 
 	def _resolve_admin_for(self, model: type[Model]) -> type[ModelAdmin]:
 		if model in self._hidden_models:
@@ -162,13 +212,16 @@ class AdminRegistrar:
 
 		return f"{START_LOG_TEXT} {middle_log_text} {Fore.L_GREEN}{typename(admin_class)}{Fore.RESET} admin class."
 
+	def _get_models_to_register(self) -> Iterator[Model]:
+		return apps.get_app_config(self._app.name).get_models()
+
 	def peform_register(self):
 		if self._registration_performed:
 			_logger.error(f'An attempt to re-register for {self._app.name} app.')
 			return
 
 		_logger.debug(f'-- Start {Fore.L_MAGENTA}{self._app.name}{Fore.RESET} registration -------')
-		for model_class in apps.get_app_config(self._app.name).get_models():
+		for model_class in self._get_models_to_register():
 			if model_class in self._excluded_models:
 				_logger.debug(self._make_log_message(model_class, None))
 				continue

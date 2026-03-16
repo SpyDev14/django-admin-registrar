@@ -63,7 +63,7 @@ wheels = [
 
 [[package]]
 name = "django-admin-registrar"
-version = "0.1.0.dev1+2602201000"
+version = "0.1.0.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "django", version = "5.2.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
@@ -75,12 +75,78 @@ colorama = [
     { name = "colorama" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "django-admin-sortable2" },
+    { name = "django-mptt" },
+    { name = "django-solo" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "colorama", marker = "extra == 'colorama'" },
     { name = "django" },
 ]
 provides-extras = ["colorama"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "django-admin-sortable2" },
+    { name = "django-mptt" },
+    { name = "django-solo" },
+]
+
+[[package]]
+name = "django-admin-sortable2"
+version = "2.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django", version = "5.2.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "django", version = "6.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e2/09/cc2d19412e47aaf627f54f9b5b544de73553bd71e25d417dd62e91b36edd/django_admin_sortable2-2.3.1.tar.gz", hash = "sha256:e397d08606f9e0da73e52661b841021ecab21be6f74783408e625ccddfe975af", size = 67497, upload-time = "2026-01-22T14:20:29.049Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c8/77/4396e853c3ee3b1264a2bb23f9b1934194ab750c6ecd30aa194b53dec7b9/django_admin_sortable2-2.3.1-py3-none-any.whl", hash = "sha256:5784f441f3532013438c3c3226fbccc39b9c733f867b26a5f477d6b05f734b93", size = 107015, upload-time = "2026-01-22T14:20:27.604Z" },
+]
+
+[[package]]
+name = "django-js-asset"
+version = "3.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django", version = "5.2.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "django", version = "6.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e6/91/c63f136f553ec24fc46ccf20ac7292a8df04815b383975b6f3f7f0060217/django_js_asset-3.1.2.tar.gz", hash = "sha256:1fc7584199ed1941ed7c8e7b87ca5524bb0f2ba941561d2a104e88ee9f07bedd", size = 9471, upload-time = "2025-03-04T15:22:49.789Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a6/cf/b208767db5e56b5189829f753eec6a14ee75d074922dc2bd19220b22a34d/django_js_asset-3.1.2-py3-none-any.whl", hash = "sha256:b5ffe376aebbd73b7af886d675ac9f43ca63b39540190fa8409c9f8e79145f68", size = 5905, upload-time = "2025-03-04T15:22:51.152Z" },
+]
+
+[[package]]
+name = "django-mptt"
+version = "0.18.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django-js-asset" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/eb/25/04bb8e4384f3484dabbd0e2a84946f1c972b95b07512509a17aaa361be0f/django_mptt-0.18.0.tar.gz", hash = "sha256:cf5661357ff22bc64e20d3341c26e538aa54583aea0763cfe6aaec0ab8e3a8ee", size = 71407, upload-time = "2025-08-26T09:27:01.05Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/9e/78aad58a90f2e4d0c898eeadd2f2b720bcae29b43676dd37c2b627c4c6c6/django_mptt-0.18.0-py3-none-any.whl", hash = "sha256:bfa3f01627e3966a1df901aeca74570a3e933e66809ebf58d9df673e63627afb", size = 120157, upload-time = "2025-08-26T09:27:02.168Z" },
+]
+
+[[package]]
+name = "django-solo"
+version = "2.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django", version = "5.2.10", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "django", version = "6.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/aa/b3/1128d46ca1956dca02b7425bd5bc753c3a31ed21be6c3bb19b8d4c5316c9/django_solo-2.5.1.tar.gz", hash = "sha256:ca3b2e44dbb4726446941ca8d765c247123f709f051d07e62eacf97330ffde01", size = 13662, upload-time = "2026-01-01T15:46:52.221Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/59/aa/45058bdec53ce3df577be9bd40c630067788923284becc6cca6fc592d4db/django_solo-2.5.1-py3-none-any.whl", hash = "sha256:23bfe48950587b409ec4b4ef95e5e62c1c6c590dd958d8d8b99d37d5ccb53ca8", size = 16882, upload-time = "2026-01-01T15:46:51.087Z" },
+]
 
 [[package]]
 name = "sqlparse"

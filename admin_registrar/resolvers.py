@@ -4,11 +4,11 @@ from django.utils.module_loading 	import import_string
 from django.contrib.admin 			import ModelAdmin
 from django.db.models 				import Model
 
-# Circular Import
+# Circular import
 # from admin_registrar.conf import settings
 
 
-DefaultAdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
+type DefaultAdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
 
 # caching
 _PARSED_DEFAULTS: dict[type[Model], type[ModelAdmin]] = {}

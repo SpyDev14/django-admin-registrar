@@ -1,9 +1,4 @@
-from logging import getLogger
-from typing import Protocol
-
-from admin_registrar.conf import settings, Settings
-
-_logger = getLogger(__name__)
+from admin_registrar.conf import settings
 
 class _Palette:
 	BLACK: 	str = ''
@@ -50,11 +45,9 @@ class _AnsiPalette(_Palette):
 Fore: type[_Palette] = _Palette
 
 if settings.COLORED_LOGS:
-	try:
-		from colorama import init
-		init()
+	# If user use cmd.exe they install colorama
+	try: from colorama import init; init()
 	except ImportError:
 		pass
-	# NOTE: Указать в документации, что поддерживается colorama init для cmd.exe
 
 	Fore = _AnsiPalette
