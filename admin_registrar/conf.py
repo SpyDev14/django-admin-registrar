@@ -1,5 +1,5 @@
 from functools 	import cached_property
-from typing 	import Generic, TypeVar, Self, overload
+from typing 	import Generic, TypeVar, Self, overload, Any
 
 from django.utils.module_loading 	import import_string
 from django.contrib.admin 			import ModelAdmin
@@ -10,7 +10,7 @@ from admin_registrar.utils 		import typename
 from admin_registrar.admin 		import HiddenAdmin
 
 _CONFIG_DICT_NAME = 'ADMIN_REGISTRAR'
-_ADMIN_REGISTRATION_CONFIG = getattr(django_settings, _CONFIG_DICT_NAME, {})
+_ADMIN_REGISTRATION_CONFIG: dict[str, Any] = getattr(django_settings, _CONFIG_DICT_NAME, {})
 if not isinstance(_ADMIN_REGISTRATION_CONFIG, dict):
 	raise TypeError(f'{_CONFIG_DICT_NAME} should be a dict, got {typename(_ADMIN_REGISTRATION_CONFIG)}.')
 
