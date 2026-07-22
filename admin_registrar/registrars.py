@@ -90,7 +90,7 @@ class AdminRegistrar:
 		registrar.exclude_inline(ProductImageInline)
 		```
 		"""
-		self.exclude(inline.model)
+		self.exclude(inline.model) # type: ignore // model is ClassVar, but not annotated as it
 		return inline
 
 	def set_admin_for_model(self, model: type[Model], admin_class: type[ModelAdmin]):
@@ -234,7 +234,7 @@ class AdminRegistrar:
 
 		return f"{START_LOG_TEXT} {middle_log_text} {ADMIN_COLOR}{typename(admin_class)}{Fore.RESET} admin class."
 
-	def _get_models_to_register(self) -> Iterator[Model]:
+	def _get_models_to_register(self) -> Iterator[type[Model]]:
 		return apps.get_app_config(self._app.name).get_models()
 
 	def _log_registering(self, msg: object) -> None:
