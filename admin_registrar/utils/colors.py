@@ -21,7 +21,7 @@ class _Palette:
 
 	RESET: str = ''
 
-class _AnsiPalette(_Palette):
+class _ForePalette(_Palette):
 	BLACK: 	str = '\033[30m'
 	RED: 	str = '\033[31m'
 	GREEN: 	str = '\033[32m'
@@ -50,4 +50,4 @@ if settings.COLORED_LOGS:
 	except ImportError:
 		pass
 
-	Fore = _AnsiPalette
+	Fore = _ForePalette
