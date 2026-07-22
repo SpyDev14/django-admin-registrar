@@ -44,7 +44,9 @@ class ConfValue(Generic[_T]):
 
 class ConfImportableVal(ConfValue[_T]):
 	def _get_value(self):
-		specified_path: str = _ADMIN_REGISTRATION_CONFIG.get(self._name, None)
+		specified_path = _ADMIN_REGISTRATION_CONFIG.get(self._name)
+		if specified_path is not None and not isinstance(specified_path, str):
+			raise TypeError(f"Importable {self._name} shoud be a string")
 		return (
 			import_string(specified_path) if specified_path
 			else self._default
