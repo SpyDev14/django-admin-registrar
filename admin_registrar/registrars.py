@@ -20,6 +20,7 @@ class RegisteringLogColors:
 	admin_class: str = Fore.L_GREEN
 	app: str = Fore.L_GREEN
 	excluded: str = Fore.L_MAGENTA
+	already_registered: str = Fore.RED
 
 class AdminRegistrar:
 	def __init__(self,
@@ -195,6 +196,20 @@ class AdminRegistrar:
 	def _register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
 		site.register(model, admin_class)
 
+	def _is_model_registered_already(self, model: type[Model]) -> bool:
+		return site.is_registered(model)
+
+	def _try_register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
+		if not self._is_model_registered_already(model):
+			COLOR = self._registering_log_colors.already_registered
+			_logger.error(
+				f"{COLOR}Model {typename(model)} from {model._meta.app_label} already registered.{Fore.RESET} "
+				f"Automatic registration by {typename(admin_class)} admin class skipped."
+			)
+			return
+
+		self._register_on_site(model, admin_class)
+
 	def _resolve_default_admin_for(self, model: type[Model]) -> type[ModelAdmin]:
 		return self._default_admins_resolver(model)
 
@@ -248,7 +263,7 @@ class AdminRegistrar:
 
 			admin_class = self._resolve_admin_for(model_class)
 
-			self._register_on_site(model_class, admin_class)
+			self._try_register_on_site(model_class, admin_class)
 			self._log_registering(self._make_log_message(model_class, admin_class))
 
 		self._registration_performed = True
