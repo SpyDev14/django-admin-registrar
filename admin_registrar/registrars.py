@@ -1,5 +1,6 @@
-from logging 	import getLogger
-from typing 	import Iterable, Iterator
+from dataclasses 	import dataclass
+from typing 		import Iterable, Iterator
+import logging
 
 from django.contrib.admin 	import ModelAdmin, options, site
 from django.db.models 		import Model
@@ -11,7 +12,14 @@ from admin_registrar.resolvers		import DefaultAdminsResolver
 from admin_registrar.conf 			import settings
 
 
-_logger = getLogger(__name__)
+_logger = logging.getLogger(__name__)
+
+@dataclass
+class RegisteringLogColors:
+	model: str
+	admin_class: str
+	app: str
+	excluded: str
 
 class AdminRegistrar:
 	def __init__(self,
@@ -22,6 +30,8 @@ class AdminRegistrar:
 			hidden_models: 		set[type[Model]] | None = None,
 
 			default_admins_resolver: DefaultAdminsResolver = settings.DEFAULT_ADMINS_RESOLVER,
+			registering_log_level: int = logging.DEBUG,
+			registering_log_colors: RegisteringLogColors | None = None,
 		):
 		self._app = app
 		self._excluded_models 	= excluded_models or set()
@@ -29,6 +39,13 @@ class AdminRegistrar:
 		self._admins_for_models = admins_for_models or dict()
 
 		self._default_admins_resolver = default_admins_resolver
+		self._registering_log_level = registering_log_level
+		self._registering_log_colors = registering_log_colors or RegisteringLogColors(
+			model=Fore.L_GREEN,
+			admin_class=Fore.L_GREEN,
+			app=Fore.L_MAGENTA,
+			excluded=Fore.RED,
+		)
 
 		self._registration_performed: bool = False
 
@@ -196,39 +213,47 @@ class AdminRegistrar:
 		)
 
 	def _make_log_message(self, model: type[Model], admin_class: type[ModelAdmin] | None) -> str:
+		MODEL_COLOR 	= self._registering_log_colors.model
+		APP_COLOR 		= self._registering_log_colors.app
+		EXCLUDED_COLOR 	= self._registering_log_colors.excluded
+		ADMIN_COLOR 	= self._registering_log_colors.admin_class
+
 		START_LOG_TEXT = (
-			f"model {Fore.L_GREEN}{typename(model)}{Fore.RESET} "
-			f"from {Fore.L_MAGENTA}{self._app.name}{Fore.RESET}"
+			f"model {MODEL_COLOR}{typename(model)}{Fore.RESET} "
+			f"from {APP_COLOR}{self._app.name}{Fore.RESET}"
 		)
 
 		if admin_class is None:
 			assert model in self._excluded_models
-			return f"{START_LOG_TEXT} is {Fore.L_RED}excluded{Fore.RESET}."
+			return f"{START_LOG_TEXT} is {EXCLUDED_COLOR}excluded{Fore.RESET}."
 
 		middle_log_text = (
 			"was hidden by" if model in self._hidden_models
 			else "succesful registered with"
 		)
 
-		return f"{START_LOG_TEXT} {middle_log_text} {Fore.L_GREEN}{typename(admin_class)}{Fore.RESET} admin class."
+		return f"{START_LOG_TEXT} {middle_log_text} {ADMIN_COLOR}{typename(admin_class)}{Fore.RESET} admin class."
 
 	def _get_models_to_register(self) -> Iterator[Model]:
 		return apps.get_app_config(self._app.name).get_models()
+
+	def _log_registering(self, msg: object) -> None:
+		_logger.log(self._registering_log_level, msg)
 
 	def peform_register(self):
 		if self._registration_performed:
 			_logger.error(f'An attempt to re-register for {self._app.name} app.')
 			return
 
-		_logger.debug(f'-- Start {Fore.L_MAGENTA}{self._app.name}{Fore.RESET} registration -------')
+		self._log_registering(f'-- Start {self._registering_log_colors.app}{self._app.name}{Fore.RESET} registration -------')
 		for model_class in self._get_models_to_register():
 			if model_class in self._excluded_models:
-				_logger.debug(self._make_log_message(model_class, None))
+				self._log_registering(self._make_log_message(model_class, None))
 				continue
 
 			admin_class = self._resolve_admin_for(model_class)
 
 			self._register_on_site(model_class, admin_class)
-			_logger.debug(self._make_log_message(model_class, admin_class))
+			self._log_registering(self._make_log_message(model_class, admin_class))
 
 		self._registration_performed = True
