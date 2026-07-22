@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Protocol
 
 from django.utils.module_loading 	import import_string
 from django.contrib.admin 			import ModelAdmin
@@ -8,7 +8,8 @@ from django.db.models 				import Model
 # from admin_registrar.conf import settings
 
 
-type DefaultAdminsResolver = Callable[[type[Model]], type[ModelAdmin]]
+class DefaultAdminsResolver(Protocol):
+	def __call__(self, model_class: type[Model]) -> type[ModelAdmin]: ...
 
 # caching
 _PARSED_DEFAULTS: dict[type[Model], type[ModelAdmin]] = {}
