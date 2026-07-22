@@ -16,10 +16,10 @@ _logger = logging.getLogger(__name__)
 
 @dataclass
 class RegisteringLogColors:
-	model: str
-	admin_class: str
-	app: str
-	excluded: str
+	model: str = Fore.L_GREEN
+	admin_class: str = Fore.L_GREEN
+	app: str = Fore.L_GREEN
+	excluded: str = Fore.L_MAGENTA
 
 class AdminRegistrar:
 	def __init__(self,
@@ -40,12 +40,7 @@ class AdminRegistrar:
 
 		self._default_admins_resolver = default_admins_resolver
 		self._registering_log_level = registering_log_level
-		self._registering_log_colors = registering_log_colors or RegisteringLogColors(
-			model=Fore.L_GREEN,
-			admin_class=Fore.L_GREEN,
-			app=Fore.L_MAGENTA,
-			excluded=Fore.RED,
-		)
+		self._registering_log_colors = registering_log_colors or RegisteringLogColors()
 
 		self._registration_performed: bool = False
 
