@@ -12,7 +12,7 @@ from admin_registrar.admin 		import HiddenAdmin
 _CONFIG_DICT_NAME = 'ADMIN_REGISTRAR'
 _ADMIN_REGISTRATION_CONFIG: dict[str, Any] = getattr(django_settings, _CONFIG_DICT_NAME, {})
 if not isinstance(_ADMIN_REGISTRATION_CONFIG, dict):
-	raise TypeError(f'{_CONFIG_DICT_NAME} should be a dict, got {typename(_ADMIN_REGISTRATION_CONFIG)}.')
+	raise TypeError(f'{_CONFIG_DICT_NAME} should be a dict, got: {typename(_ADMIN_REGISTRATION_CONFIG)}.')
 
 _T = TypeVar('_T')
 # Generic for default type hints (if not specified)
