@@ -1,14 +1,14 @@
 [project]
 name = "django-admin-registrar"
-version = "0.1.0.beta1" #<major>.<minor>.<patch>.dev<number>
+version = "0.2.0.rc1" #<major>.<minor>.<patch>.dev|beta|rc<number>
 description = "Python Django package for convenient registration of models in the admin area without a boilerplate in a declarative style."
 authors = [
 	{ name = "SpyDev14", email = "135313844+SpyDev14@users.noreply.github.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
-	'django',
+	'django>=4.0',
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
