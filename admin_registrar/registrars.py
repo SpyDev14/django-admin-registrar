@@ -1,4 +1,3 @@
-from dataclasses 	import dataclass
 from typing 		import Iterable, Iterator
 import logging
 
@@ -8,19 +7,12 @@ from django.apps 			import AppConfig, apps
 
 from admin_registrar.utils.colors 	import Fore
 from admin_registrar.utils 			import typename
+from admin_registrar.dataclasses 	import RegisteringLogColors
 from admin_registrar.resolvers		import DefaultAdminsResolver
 from admin_registrar.conf 			import settings
 
 
 _logger = logging.getLogger(__name__)
-
-@dataclass
-class RegisteringLogColors:
-	model: str = Fore.L_GREEN
-	admin_class: str = Fore.L_GREEN
-	app: str = Fore.L_GREEN
-	excluded: str = Fore.L_MAGENTA
-	already_registered: str = Fore.RED
 
 class AdminRegistrar:
 	def __init__(self,
