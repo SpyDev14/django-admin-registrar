@@ -1,8 +1,8 @@
 from typing import Protocol
 
-from django.utils.module_loading 	import import_string
-from django.contrib.admin 			import ModelAdmin
-from django.db.models 				import Model
+from django.utils.module_loading import import_string
+from django.contrib.admin import ModelAdmin
+from django.db.models import Model
 
 # Circular import
 # from admin_registrar.conf import settings

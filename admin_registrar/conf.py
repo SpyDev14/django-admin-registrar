@@ -1,13 +1,13 @@
-from functools 	import cached_property
-from typing 	import Generic, TypeVar, Self, overload, Any
+from functools import cached_property
+from typing import Generic, TypeVar, Self, overload, Any
 
-from django.utils.module_loading 	import import_string
-from django.contrib.admin 			import ModelAdmin
-from django.conf 					import settings as django_settings
+from django.utils.module_loading import import_string
+from django.contrib.admin import ModelAdmin
+from django.conf import settings as django_settings
 
-from admin_registrar.resolvers 	import DefaultAdminsResolver, first_mro_match_resolver
-from admin_registrar.utils 		import typename
-from admin_registrar.admin 		import HiddenAdmin
+from admin_registrar.resolvers import DefaultAdminsResolver, first_mro_match_resolver
+from admin_registrar.utils import typename
+from admin_registrar.admin import HiddenAdmin
 
 _CONFIG_DICT_NAME = 'ADMIN_REGISTRAR'
 _ADMIN_REGISTRATION_CONFIG: dict[str, Any] = getattr(django_settings, _CONFIG_DICT_NAME, {})
