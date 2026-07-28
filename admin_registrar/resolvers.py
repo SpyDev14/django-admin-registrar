@@ -26,7 +26,7 @@ def first_mro_match_resolver(model_class: type[Model]) -> type[ModelAdmin]:
 
 	for cls in model_class.mro():
 		if not issubclass(cls, Model):
-			return ModelAdmin
+			continue # If model nesting from some mixins who not nested from Model
 		if cls in _PARSED_DEFAULTS:
 			return _PARSED_DEFAULTS[cls]
 
