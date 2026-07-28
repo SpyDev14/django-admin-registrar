@@ -195,7 +195,7 @@ class AdminRegistrar:
 		return site.is_registered(model)
 
 	def _try_register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
-		if not self._is_model_registered_already(model):
+		if self._is_model_registered_already(model):
 			COLOR = self._registering_log_colors.already_registered
 			_logger.error(
 				f"{COLOR}Model {typename(model)} from {model._meta.app_label} already registered.{Fore.RESET} "
