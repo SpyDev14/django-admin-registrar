@@ -1,3 +1,4 @@
+from warnings import deprecated
 from typing import Iterable, Iterator, MutableMapping, MutableSet
 import logging
 
@@ -244,7 +245,7 @@ class AdminRegistrar:
 	def _log_registering(self, msg: object) -> None:
 		_logger.log(self._registering_log_level, msg)
 
-	def peform_register(self):
+	def perform_register(self):
 		if self._registration_performed:
 			_logger.error(f'An attempt to re-register for {self._app.name} app.')
 			return
@@ -261,3 +262,6 @@ class AdminRegistrar:
 			self._log_registering(self._make_log_message(model_class, admin_class))
 
 		self._registration_performed = True
+
+	@deprecated("Use perform_register instead.") # damn typo 😭
+	def peform_register(self): self.perform_register()
