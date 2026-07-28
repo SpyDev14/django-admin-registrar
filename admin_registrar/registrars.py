@@ -250,7 +250,7 @@ class AdminRegistrar:
 			_logger.error(f'An attempt to re-register for {self._app.name} app.')
 			return
 
-		self._log_registering(f'-- Start {self._registering_log_colors.app}{self._app.name}{Fore.RESET} registration -------')
+		self._log_registering(f'\n-- Start {self._registering_log_colors.app}{self._app.name}{Fore.RESET} registration -------')
 		for model_class in self._get_models_to_register():
 			if model_class in self._excluded_models:
 				self._log_registering(self._make_log_message(model_class, None))
