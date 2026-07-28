@@ -1,8 +1,30 @@
 # Changelog
+## [Unreleased]
+### Breaking Changes
+- `registrars.RegisteringLogColors` moved into `dataclasses` for fix Circular Import in `conf`.
+- `RECCOMENDED_*` formatter and name in `logging.py` renamed to `RECOMMENDED_*` formatter and name.
+
+### Added
+- Added registering global log color configuration for the entire project (instead of per‑app only).
+- `AdminRegistrar.registering_log_level` default now getting from `settings.REGISTERING_LOG_LEVEL`
+- `AdminRegistrar.registering_log_colors` default now getting from `settings.REGISTERING_LOG_COLORS`
+
+### Changed
+- `COLORED_LOGS` parameter renamed to `ENABLE_COLORED_LOGS` and new default is `True` (being `False`).
+
+### Deprecated
+- Fixed type in `AdminRegistrar.peform_register` name, now `perform_register` (peRform instead peForm)
+  with back compatibility. Will be removed in future.
+
+<!--
+### Removed
+### Fixed
+### Security
+  -->
 
 ## [0.2.1] - 2026-07-28
 ### Fixed
-- `first_mro_match_resolver` now does not returning base `ModelAdmin` if seen some mixin in model mro.
+- Issue #2: `first_mro_match_resolver` now does not returning base `ModelAdmin` if seen some mixin in model mro.
 
 ## [0.2.0] - 2026-07-23
 ### Added
