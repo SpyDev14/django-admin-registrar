@@ -6,3 +6,6 @@ RECOMMENDED_FORMATTER = {
 	'style': '{',
 }
 RECOMMENDED_NAME = 'admin_registrar.registrars'
+
+# What about adding regex for match ANSI codes for removing or something like that?
+# re.compile('\001?\033\\[((?:\\d|;)*)([a-zA-Z])\002?')
