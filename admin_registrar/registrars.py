@@ -199,7 +199,8 @@ class AdminRegistrar:
 			COLOR = self._registering_log_colors.already_registered
 			_logger.error(
 				f"{COLOR}Model {typename(model)} from {model._meta.app_label} already registered.{Fore.RESET} "
-				f"Automatic registration by {typename(admin_class)} admin class skipped."
+				f"Automatic registration by {typename(admin_class)} admin class skipped. "
+				"Maybe you manual register model in somethere? Or use other tools with autoregistering?"
 			)
 			return
 
