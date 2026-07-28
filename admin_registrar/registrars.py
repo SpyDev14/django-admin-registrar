@@ -1,4 +1,4 @@
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, MutableMapping, MutableSet
 import logging
 
 from django.contrib.admin import ModelAdmin, options, site
@@ -18,9 +18,9 @@ class AdminRegistrar:
 	def __init__(self,
 			app: type[AppConfig],
 			*,
-			admins_for_models: 	dict[type[Model], type[ModelAdmin]] | None = None,
-			excluded_models: 	set[type[Model]] | None = None,
-			hidden_models: 		set[type[Model]] | None = None,
+			admins_for_models: 	MutableMapping[type[Model], type[ModelAdmin]] | None = None,
+			excluded_models: 	MutableSet[type[Model]] | None = None,
+			hidden_models: 		MutableSet[type[Model]] | None = None,
 
 			default_admins_resolver: DefaultAdminsResolver = settings.DEFAULT_ADMINS_RESOLVER,
 			registering_log_level: int = logging.DEBUG,
@@ -62,7 +62,8 @@ class AdminRegistrar:
 		])
 		```
 		"""
-		self._excluded_models.update(models)
+		for model in models:
+			self.exclude(model)
 
 	def exclude_inline(self, inline: type[options.InlineModelAdmin]):
 		"""
@@ -182,8 +183,9 @@ class AdminRegistrar:
 		self._hidden_models.add(model)
 
 	def hide_several(self, models: Iterable[type[Model]]):
-		"""Performs `hide` for all given models."""
-		self._hidden_models.update(models)
+		"""`hide` all given models"""
+		for model in models:
+			self.hide(model)
 
 	def _register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
 		site.register(model, admin_class)
