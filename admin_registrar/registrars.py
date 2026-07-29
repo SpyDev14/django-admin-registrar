@@ -197,7 +197,7 @@ class AdminRegistrar:
 	def _try_register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
 		if self._is_model_registered_already(model):
 			COLOR = self._registering_log_colors.already_registered
-			_logger.error(
+			_logger.warning(
 				f"{COLOR}Model {typename(model)} from {model._meta.app_label} already registered.{Fore.RESET} "
 				f"Automatic registration by {typename(admin_class)} admin class skipped."
 			)
