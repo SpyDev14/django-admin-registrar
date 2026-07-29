@@ -56,7 +56,7 @@ class ImportableConfVar(ConfVar[_T]):
 	def _get_value(self):
 		import_str = _CONFIG_DICT.get(self._name)
 		if import_str is not None and not isinstance(import_str, str):
-			raise TypeError(f"Importable {self._name} shoud be a string")
+			raise TypeError(f"Importable {self._name} should be a string")
 
 		return import_string(import_str or self._raw_default)
 

@@ -118,7 +118,7 @@ class AdminRegistrar:
 		```
 
 		Use `registrar.set_admin_for_model(Product, ProductAdmin)`
-		instead for better readabillity.
+		instead for better readability.
 		"""
 		def decorator(admin_class: type[ModelAdmin]):
 			self.set_admin_for_model(model, admin_class)
@@ -199,8 +199,7 @@ class AdminRegistrar:
 			COLOR = self._registering_log_colors.already_registered
 			_logger.error(
 				f"{COLOR}Model {typename(model)} from {model._meta.app_label} already registered.{Fore.RESET} "
-				f"Automatic registration by {typename(admin_class)} admin class skipped. "
-				"Maybe you manual register model in somethere? Or use other tools with autoregistering?"
+				f"Automatic registration by {typename(admin_class)} admin class skipped."
 			)
 			return
 
@@ -235,7 +234,7 @@ class AdminRegistrar:
 
 		middle_log_text = (
 			"was hidden by" if model in self._hidden_models
-			else "succesful registered with"
+			else "successful registered with"
 		)
 
 		return f"{START_LOG_TEXT} {middle_log_text} {ADMIN_COLOR}{typename(admin_class)}{Fore.RESET} admin class."
