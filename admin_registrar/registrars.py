@@ -23,10 +23,10 @@ class AdminRegistrar:
 			excluded_models: 	MutableSet[type[Model]] | None = None,
 			hidden_models: 		MutableSet[type[Model]] | None = None,
 
+			# Can be refactored to one `config` with value-nesting from `settings`
 			default_admins_resolver: DefaultAdminsResolver = settings.DEFAULT_ADMINS_RESOLVER,
-			registering_log_level: int = logging.DEBUG,
-			registering_log_colors: RegisteringLogColors | None = None,
-		):
+			registering_log_level: int = settings.REGISTERING_LOG_LEVEL,
+			registering_log_colors: RegisteringLogColors = settings.REGISTERING_LOG_COLORS,
 		self._app = app
 		self._excluded_models 	= excluded_models or set()
 		self._hidden_models 	= hidden_models or set()
@@ -34,7 +34,7 @@ class AdminRegistrar:
 
 		self._default_admins_resolver = default_admins_resolver
 		self._registering_log_level = registering_log_level
-		self._registering_log_colors = registering_log_colors or RegisteringLogColors()
+		self._registering_log_colors = registering_log_colors
 
 		self._registration_performed: bool = False
 

@@ -60,6 +60,27 @@ class ImportableConfVar(ConfVar[_T]):
 
 		return import_string(import_str or self._raw_default)
 
+class DataclassConfVar(ConfVar[_T]):
+	def __init__(self, raw_default: dict[str, Any], dataclass_import_str: str):
+		super().__init__(raw_default)
+		self._raw_default: dict[str, Any]
+		self._dataclass_import_str = dataclass_import_str
+
+	def _import_dataclass(self):
+		imported = import_string(self._dataclass_import_str)
+		if not isinstance(imported, type) or not is_dataclass(imported):
+			raise TypeError(f"{typename(imported)} isn't dataclass")
+		return imported
+
+	def _get_value(self):
+		data = _CONFIG_DICT.get(self._name, self._raw_default)
+
+		if not isinstance(data, dict):
+			raise TypeError(f"{self._name} should be a dict, got: {typename(data)}")
+
+		dataclass = self._import_dataclass()
+		return dataclass(**data)
+
 class ImportablesDictConfVar(ConfVar[_T]):
 	def __init__(self, raw_default: dict[str, str]):
 		super().__init__(raw_default)
@@ -87,5 +108,7 @@ class Settings:
 	ENABLE_COLORED_LOGS: ConfVar[bool] = ConfVar(True)
 
 	DEFAULT_ADMINS_RESOLVER: ImportableConfVar["DefaultAdminsResolver"] = ImportableConfVar('admin_registrar.resolvers.first_mro_match_resolver')
+	REGISTERING_LOG_COLORS: DataclassConfVar["RegisteringLogColors"] = DataclassConfVar({}, 'admin_registrar.dataclasses.RegisteringLogColors')
+	REGISTERING_LOG_LEVEL: ConfVar[int] = ConfVar(logging.DEBUG)
 
 settings = Settings()
