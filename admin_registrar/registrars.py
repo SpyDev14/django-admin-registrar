@@ -19,17 +19,17 @@ class AdminRegistrar:
 	def __init__(self,
 			app: type[AppConfig],
 			*,
-			admins_for_models: 	MutableMapping[type[Model], type[ModelAdmin]] | None = None,
-			excluded_models: 	MutableSet[type[Model]] | None = None,
-			hidden_models: 		MutableSet[type[Model]] | None = None,
+			admins_for_models: MutableMapping[type[Model], type[ModelAdmin]] | None = None,
+			excluded_models: MutableSet[type[Model]] | None = None,
+			hidden_models: MutableSet[type[Model]] | None = None,
 
 			# Can be refactored to one `config` with value-nesting from `settings`
 			default_admins_resolver: DefaultAdminsResolver = settings.DEFAULT_ADMINS_RESOLVER,
 			registering_log_level: int = settings.REGISTERING_LOG_LEVEL,
 			registering_log_colors: RegisteringLogColors = settings.REGISTERING_LOG_COLORS,
 		self._app = app
-		self._excluded_models 	= excluded_models or set()
-		self._hidden_models 	= hidden_models or set()
+		self._excluded_models = excluded_models or set()
+		self._hidden_models = hidden_models or set()
 		self._admins_for_models = admins_for_models or dict()
 
 		self._default_admins_resolver = default_admins_resolver
