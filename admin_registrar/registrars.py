@@ -246,7 +246,7 @@ class AdminRegistrar:
 	def _log_registering(self, msg: object) -> None:
 		_logger.log(self._registering_log_level, msg)
 
-	def perform_register(self):
+	def register(self):
 		if self._registration_performed:
 			_logger.error(f'An attempt to re-register for {self._app.name} app.')
 			return
@@ -264,5 +264,5 @@ class AdminRegistrar:
 
 		self._registration_performed = True
 
-	@deprecated("Use perform_register instead.") # damn typo 😭
-	def peform_register(self): self.perform_register()
+	@deprecated("Use perform_registration instead.") # 1. fix type, 2. better name
+	def peform_register(self): self.register()
