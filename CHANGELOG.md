@@ -28,6 +28,9 @@
 - Rename with back compatibility. `AdminRegistrar.peform_register` to `register` for fix type (is first; was
   peForm register), and shorter name. This will be removed in future.
 
+### ✨ Added
+- `AdminRegistrar` registering now write warning on attempt to register already registered model.
+
 ## [0.2.1] - 2026-07-28
 ### 🐛 Fixed
 - Issue #2: `first_mro_match_resolver` now does not returning base `ModelAdmin` if seen some mixin in model mro.
