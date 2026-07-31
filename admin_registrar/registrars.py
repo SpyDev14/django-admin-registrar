@@ -27,6 +27,7 @@ class AdminRegistrar:
 			default_admins_resolver: DefaultAdminsResolver = settings.DEFAULT_ADMINS_RESOLVER,
 			registering_log_level: int = settings.REGISTERING_LOG_LEVEL,
 			registering_log_colors: RegisteringLogColors = settings.REGISTERING_LOG_COLORS,
+		):
 		self._app = app
 		self._excluded_models = excluded_models or set()
 		self._hidden_models = hidden_models or set()
@@ -127,7 +128,7 @@ class AdminRegistrar:
 
 	def hide(self, model: type[Model]):
 		"""
-		### [En] (Has Ru language below)
+		### [En] (has russian below)
 		<hr>
 
 		Registers the model in the admin panel under `HiddenAdmin` (by default).
