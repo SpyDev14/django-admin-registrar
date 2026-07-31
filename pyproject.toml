@@ -41,12 +41,25 @@ colorama = ['colorama', ]
 
 [dependency-groups]
 dev = [
-	'pytest',
-	'pytest-django',
-
-	'django-solo',
-	'django-mptt',
-	'django-admin-sortable2'
+	"pytest",
+	"pytest-django",
+	# [Models]
+	"django-solo",
+	"django-mptt",
+	"django-tinymce",
+	"django-ordered-model",
+	"django-phonenumber-field",
+	"phonenumbers", # for django-phonenumber-field
+	# [Utils]
+	"django-cleanup",
+	"django-environ",
+	"django-admin-sortable2",
+	"django-admin-rangefilter",
+	"django-debug-toolbar>=7.0.0",
+	# [Image processing]
+	"pillow",
+	# [Admin]
+	"django-admin-sortable>=2.3",
 ]
 
 [tool.pytest.ini_options]
