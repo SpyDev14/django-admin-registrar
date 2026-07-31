@@ -28,6 +28,41 @@ class AdminRegistrar:
 			registering_log_level: int = settings.REGISTERING_LOG_LEVEL,
 			registering_log_colors: RegisteringLogColors = settings.REGISTERING_LOG_COLORS,
 		):
+		"""
+		### [EN] (has russian below)
+
+		---
+
+		### [RU]
+
+		---
+
+		Документацию об использовании смотрите в документации класса
+		(это документация конструктора)
+
+		Args:
+			app:
+				Класс конфига приложения для которого будет выполена регистрация.
+		Params:
+			admins_for_models:
+				Заранее указанные админ классы для моделей. По умолчанию создаётся новый пустой словарь.
+				Заполняется через метод :meth:`set_admin_for_model` и его декораторную версию :meth:`set_for_model`.
+			excluded_models:
+				Модели, которые должны быть исключены из списка для автоматической регистрации.
+			hidden_models:
+				Модели, что будут зарегистрированы под :class:`~admin.HiddenAdmin` (по умолчанию) и не будут
+				отображаться в админ панели напрямую, но будут доступны для модификации через
+				API админ панели, что важно для изменений модели через формы изменений других
+				моделей. Подробнее смотрите в документации :meth:`hide`.
+
+			default_admins_resolver:
+				`Callable` объект принимающий модель и возвращающий админ класс для неё. По умолчанию берётся
+				из :attr:`settings.DEFAULT_ADMINS_RESOLVER`.
+			registering_log_level:
+
+			registering_log_colors:
+				RegisteringLogColors = settings.REGISTERING_LOG_COLORS,
+		"""
 		self._app = app
 		self._excluded_models = excluded_models or set()
 		self._hidden_models = hidden_models or set()
