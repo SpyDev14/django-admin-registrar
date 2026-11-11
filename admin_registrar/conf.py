@@ -24,7 +24,12 @@ if TYPE_CHECKING:
 _CONFIG_DICT_NAME = 'ADMIN_REGISTRAR'
 def _get_config_dict() -> dict[str, Any]:
 	"""ALLOWED INTERNAL IMPORT"""
-	config_dict = getattr(django_settings, _CONFIG_DICT_NAME, {})
+	config_dict = (
+		getattr(django_settings, _CONFIG_DICT_NAME)
+		if hasattr(django_settings, _CONFIG_DICT_NAME)
+		else {} # django raise ImproperlyConfigured exc if not set with getattr(.., .., {})
+	)
+
 	if not isinstance(config_dict, dict):
 		raise TypeError(f'{_CONFIG_DICT_NAME} should be a dict, got: {typename(config_dict)}.')
 
