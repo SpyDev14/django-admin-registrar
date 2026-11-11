@@ -1,5 +1,5 @@
 # CI
-# from admin_registrar.conf import settings
+# from admin_registrar.conf import config
 
 class _Palette:
 	BLACK: 	str = ''
@@ -54,15 +54,18 @@ class _ForePalette(_Palette):
 # overwrite self to _Palette or _ForePalette) is avoid from `# type: ignore`. Yeap.
 
 # Sometimes ago choosing class (empty or with ansi codes) was in `if` in
-# global space (code in __getattribute__ was in global space), but it
-# start leads to Circular Import
+# global space (code from this __getattribute__ was in global space), but it
+# begin lead to Circular Import
+
+# NOTE: maybe add some thread.Lock here? Did it no thread-save now? I mean
+# config.ENABLE_COLORED_LOGS is imutable +-
 class _UnsolvedForeMeta(type):
 	def __getattribute__(self, name):
-		from admin_registrar.conf import settings
+		from admin_registrar.conf import config
 		global Fore
 
 		Fore = _Palette
-		if settings.ENABLE_COLORED_LOGS:
+		if config.ENABLE_COLORED_LOGS:
 			try: from colorama import init; init()
 			except ImportError:
 				pass

@@ -1,1 +1,0 @@
-from .reflection import typename

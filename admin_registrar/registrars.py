@@ -1,41 +1,50 @@
-from warnings import deprecated
-from typing import Iterable, Iterator, MutableMapping, MutableSet
+from typing import Any, Iterable, Iterator, Literal, MutableMapping, MutableSet
 import logging
 
 from django.contrib.admin import ModelAdmin, options, site
 from django.db.models import Model
 from django.apps import AppConfig, apps
 
+from admin_registrar.internal import typename, deprecated
 from admin_registrar.utils.colors import Fore
-from admin_registrar.utils import typename
 from admin_registrar.dataclasses import RegisteringLogColors
-from admin_registrar.resolvers import DefaultAdminsResolver
-from admin_registrar.conf import settings
+from admin_registrar.types import DefaultAdminsResolver
+from admin_registrar.conf import config
 
 
 _logger = logging.getLogger(__name__)
 
+# Reminder: prefix "_" means protected access mode, override by subclassess
+# is allowed
 class AdminRegistrar:
 	def __init__(self,
 			app: type[AppConfig],
 			*,
 			admins_for_models: MutableMapping[type[Model], type[ModelAdmin]] | None = None,
-			excluded_models: MutableSet[type[Model]] | None = None,
-			hidden_models: MutableSet[type[Model]] | None = None,
+			excluded_models:   MutableSet[type[Model]] | None = None,
+			hidden_models:     MutableSet[type[Model]] | None = None,
 
-			# Can be refactored to one `config` with value-nesting from `settings`
-			default_admins_resolver: DefaultAdminsResolver = settings.DEFAULT_ADMINS_RESOLVER,
-			registering_log_level: int = settings.REGISTERING_LOG_LEVEL,
-			registering_log_colors: RegisteringLogColors = settings.REGISTERING_LOG_COLORS,
+			# All stuff from config is duplicated here
+			default_admins_for_models: Any | None = None,
+			default_admins_resolver:   DefaultAdminsResolver | None = None,
+			registering_log_level:     int | None = None,
+			registering_log_colors:    RegisteringLogColors | None = None,
+			hidden_admin_class:        type[ModelAdmin] | None = None,
 		):
-		self._app = app
-		self._excluded_models = excluded_models or set()
-		self._hidden_models = hidden_models or set()
-		self._admins_for_models = admins_for_models or dict()
+		# `or` return right if left is False. Empty dict and other stuff with
+		# defined __bool__ can be ignored, so i write this
+		def _(a, b): return a if a is not None else b
 
-		self._default_admins_resolver = default_admins_resolver
-		self._registering_log_level = registering_log_level
-		self._registering_log_colors = registering_log_colors
+		self._app = app
+		self._excluded_models   = _(excluded_models,   set())
+		self._hidden_models     = _(hidden_models,     set())
+		self._admins_for_models = _(admins_for_models, dict())
+
+		self._default_admins_for_models = _(default_admins_for_models, config.ADMINS_FOR_MODELS)
+		self._default_admins_resolver   = _(default_admins_resolver,   config.DEFAULT_ADMINS_RESOLVER)
+		self._registering_log_level     = _(registering_log_level,     config.REGISTERING_LOG_LEVEL)
+		self._registering_log_colors    = _(registering_log_colors,    config.REGISTERING_LOG_COLORS)
+		self._hidden_admin_class        = _(hidden_admin_class,        config.HIDDEN_ADMIN_CLASS)
 
 		self._registration_performed: bool = False
 
@@ -44,7 +53,7 @@ class AdminRegistrar:
 		Exclude model from to registration list.
 
 		Example
-		---
+		-------
 		```python
 		registrar.exclude(SomeModel)
 		```
@@ -56,7 +65,7 @@ class AdminRegistrar:
 		Exclude several models from to registration list.
 
 		Example
-		---
+		-------
 		```python
 		registrar.exclude_several([
 			SomeModelOne,
@@ -72,16 +81,16 @@ class AdminRegistrar:
 		Exclude model who used in given inline.
 
 		Example
-		---
+		-------
 		```python
 		@registrar.exclude_inline
 		class ProductImageInline(TabularInline):
 			model = ProductImage
-		# Or so
-		registrar.exclude_inline(ProductImageInline)
+		# instead
+		registrar.exclude(ProductImage)
 		```
 		"""
-		self.exclude(inline.model) # type: ignore // model is ClassVar, but not annotated as it
+		self.exclude(inline.model) # type: ignore // model is class var, but not annotated as it
 		return inline
 
 	def set_admin_for_model(self, model: type[Model], admin_class: type[ModelAdmin]):
@@ -89,7 +98,7 @@ class AdminRegistrar:
 		Set defined admin class for given model.
 
 		Example
-		---
+		-------
 		```
 		registrar.set_admin_for_model(Product, ProductAdmin)
 		```
@@ -106,7 +115,7 @@ class AdminRegistrar:
 		Set defined admin class for given model with decorator syntax.
 
 		Example
-		---
+		-------
 		```
 		@registrar.set_for_model(Product)
 		class ProductAdmin(ModelAdmin):
@@ -145,7 +154,6 @@ class AdminRegistrar:
 
 		The standard `HiddenAdmin` from this package allows you to access the list
 		page via the following path: <div>
-
 			`Form with a field for the hidden model => Change => Save => List of
 			hidden model records`.
 		</div>
@@ -192,11 +200,11 @@ class AdminRegistrar:
 	def _register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
 		site.register(model, admin_class)
 
-	def _is_model_registered_already(self, model: type[Model]) -> bool:
+	def _is_model_registered(self, model: type[Model]) -> bool:
 		return site.is_registered(model)
 
 	def _try_register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
-		if self._is_model_registered_already(model):
+		if self._is_model_registered(model):
 			COLOR = self._registering_log_colors.already_registered
 			_logger.warning(
 				f"{COLOR}Model {typename(model)} from {model._meta.app_label} already registered.{Fore.RESET} "
@@ -207,38 +215,45 @@ class AdminRegistrar:
 		self._register_on_site(model, admin_class)
 
 	def _resolve_default_admin_for(self, model: type[Model]) -> type[ModelAdmin]:
-		return self._default_admins_resolver(model)
+		return self._default_admins_resolver(model, self._default_admins_for_models)
 
 	def _resolve_admin_for(self, model: type[Model]) -> type[ModelAdmin]:
 		if model in self._hidden_models:
-			return settings.HIDDEN_ADMIN_CLASS
+			return self._hidden_admin_class
 
 		return (
 			self._admins_for_models.get(model)
 			or self._resolve_default_admin_for(model)
 		)
 
-	def _make_log_message(self, model: type[Model], admin_class: type[ModelAdmin] | None) -> str:
-		MODEL_COLOR 	= self._registering_log_colors.model
-		APP_COLOR 		= self._registering_log_colors.app
-		EXCLUDED_COLOR 	= self._registering_log_colors.excluded
-		ADMIN_COLOR 	= self._registering_log_colors.admin_class
+	def _make_log_message(self,
+		model: type[Model],
+		*,
+		admin_class: type[ModelAdmin] | None = None,
+		was: Literal["excluded", "hidden"] | None = None
+	) -> str:
+		assert admin_class is not None == was is None
+		assert was in { "excluded", "hidden", None }
 
-		START_LOG_TEXT = (
+		MODEL_COLOR     = self._registering_log_colors.model
+		APP_COLOR       = self._registering_log_colors.app
+		EXCLUDED_COLOR  = self._registering_log_colors.excluded
+		ADMIN_COLOR     = self._registering_log_colors.admin_class
+
+		start_text = (
 			f"model {MODEL_COLOR}{typename(model)}{Fore.RESET} "
 			f"from {APP_COLOR}{self._app.name}{Fore.RESET}"
 		)
 
-		if admin_class is None:
-			assert model in self._excluded_models
-			return f"{START_LOG_TEXT} is {EXCLUDED_COLOR}excluded{Fore.RESET}."
+		if was == "excluded":
+			return f"{start_text} is {EXCLUDED_COLOR}excluded{Fore.RESET}."
 
-		middle_log_text = (
-			"was hidden by" if model in self._hidden_models
-			else "successful registered with"
+		middle_text = (
+			"was hidden by" if was == "hidden"
+			else "successful registered by"
 		)
 
-		return f"{START_LOG_TEXT} {middle_log_text} {ADMIN_COLOR}{typename(admin_class)}{Fore.RESET} admin class."
+		return f"{start_text} {middle_text} {ADMIN_COLOR}{typename(admin_class)}{Fore.RESET} admin class."
 
 	def _get_models_to_register(self) -> Iterator[type[Model]]:
 		return apps.get_app_config(self._app.name).get_models()
@@ -248,21 +263,27 @@ class AdminRegistrar:
 
 	def register(self):
 		if self._registration_performed:
-			_logger.error(f'An attempt to re-register for {self._app.name} app.')
-			return
+			msg = f'An attempt to re-register for {self._app.name} app.'
+			_logger.error(msg)
 
 		self._log_registering(f'\n-- Start {self._registering_log_colors.app}{self._app.name}{Fore.RESET} registration -------')
 		for model_class in self._get_models_to_register():
 			if model_class in self._excluded_models:
-				self._log_registering(self._make_log_message(model_class, None))
+				self._log_registering(self._make_log_message(model_class, was="excluded"))
 				continue
 
 			admin_class = self._resolve_admin_for(model_class)
 
 			self._try_register_on_site(model_class, admin_class)
-			self._log_registering(self._make_log_message(model_class, admin_class))
+			self._log_registering(
+				self._make_log_message(model_class, was="hidden")
+				if admin_class in self._hidden_models
+				else self._make_log_message(model_class, admin_class=admin_class)
+			)
 
 		self._registration_performed = True
 
-	@deprecated("Use perform_registration instead.") # 1. fix type, 2. better name
+	# 1. fix type (`{peform -> perform}_registering`)
+	# 2. change to better name (just "register" instead "perform_registering")
+	@deprecated("Use register instead. Will be removed in v1.0.0")
 	def peform_register(self): self.register()

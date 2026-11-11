@@ -14,15 +14,12 @@
 ### 💥 Breaking Changes
 - `registrars.RegisteringLogColors` moved into `dataclasses`.
 - `RECCOMENDED_FORMATTER` and `RECCOMENDED_NAME` in `logging` renamed to `RECOMMENDED_*` formatter and name.
+- `DefaultAdminsResolver` signature is changed. Was: `(type[Model]) -> type[ModelAdmin]`, now: `(type[Model], Any) -> type[ModelAdmin]`. Second arg (`Any`) is `config.ADMINS_FOR_MODELS`. `ADMINS_FOR_MODELS` now can be anything, and will be given as second arg to used default admins resolver.
+- `AdminRegistrar._is_model_registered_already` renamed to `AdminRegistrar._is_model_registered`
 
 ### 🔁 Changed
-- `COLORED_LOGS` parameter renamed to `ENABLE_COLORED_LOGS` and new default is `True` (being `False`).
-  It is not breaking change because old default is `False`. But it enable colors in projects where colors
-  was disabled before. You should set `ENABLE_COLORED_LOGS` to `False` id you did'nt need it.
-- `AdminRegistrar.registering_log_level` default now getting from `settings.REGISTERING_LOG_LEVEL` and
-  can be configured on project level
-- `AdminRegistrar.registering_log_colors` default now getting from `settings.REGISTERING_LOG_COLORS` and
-  can be configured on project level
+- `COLORED_LOGS` parameter renamed to `ENABLE_COLORED_LOGS` and new default is `True` (being `False`). It is not breaking change because old default is `False`. But it enable colors in projects where colors was disabled before. You should set `ENABLE_COLORED_LOGS` to `False` id you did'nt need it.
+- `AdminRegistrar` kwargs sync with used cvars
 
 ### ⚠️ Deprecated
 - Rename with back compatibility. `AdminRegistrar.peform_register` to `register` for fix type (is first; was

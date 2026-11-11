@@ -1,6 +1,6 @@
 [project]
 name = "django-admin-registrar"
-version = "0.2.1" #<major>.<minor>.<patch>dev|beta|rc<number>
+version = "0.3.0dev0" #<major>.<minor>.<patch>dev|beta|rc<number>
 description = "Python Django package for convenient registration of models in the admin area without a boilerplate in a declarative style."
 authors = [
 	{ name = "SpyDev14", email = "135313844+SpyDev14@users.noreply.github.com" }
@@ -9,6 +9,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
 	'django>=4.0',
+	"typing-extensions>=4.5.0; python_version < '3.13'"
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
@@ -41,25 +42,52 @@ colorama = ['colorama', ]
 
 [dependency-groups]
 dev = [
-	'pytest',
-	'pytest-django',
-
-	'django-solo',
-	'django-mptt',
-	'django-admin-sortable2'
+# 	"pytest",
+# 	"pytest-django",
+# 	# [Models]
+# 	"django-solo",
+# 	"django-mptt",
+# 	"django-tinymce",
+# 	"django-ordered-model",
+# 	"django-phonenumber-field",
+# 	"phonenumbers", # for django-phonenumber-field
+# 	# [Utils]
+# 	"django-cleanup",
+# 	"django-environ",
+# 	"django-admin-sortable2",
+# 	"django-admin-rangefilter",
+# 	"django-debug-toolbar",
+# 	# [Image processing]
+# 	"pillow",
+# 	# [Admin]
+# 	"django-admin-sortable",
 ]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tests.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 
-[tool.poetry]
-packages = [
-	{ include = "admin_registrar", from = "." }
-]
+# [tool.poetry]
+# packages = [
+# 	{ include = "admin_registrar", from = "." }
+# ]
 
 [build-system]
-requires = ["poetry-core>=2.0.0"]
-build-backend = "poetry.core.masonry.api"
-# requires = ["uv_build>=0.9.5,<0.10.0"]
-# build-backend = "uv_build"
+# requires = ["poetry-core>=2.0.0"]
+# build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.5,<0.10"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "admin_registrar"
+module-root = ""
+
+[[tool.uv.index]]
+name = "test"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+
+[[tool.uv.index]]
+name = "public"
+url = "https://pypi.org/simple/"
+publish-url = "https://pypi.org/legacy/"

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from admin_registrar.utils.colors import Fore
 
-
 @dataclass
 class RegisteringLogColors:
 	model: str = Fore.L_GREEN
