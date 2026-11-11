@@ -52,7 +52,7 @@ class AdminRegistrar:
 
 	def exclude(self, model: type[Model]):
 		"""
-		Exclude model from to registration list.
+		Exclude model from models to registration.
 
 		Example
 		-------
@@ -64,7 +64,7 @@ class AdminRegistrar:
 
 	def exclude_several(self, models: Iterable[type[Model]]):
 		"""
-		Exclude several models from to registration list.
+		Exclude several models from models to registration.
 
 		Example
 		-------
