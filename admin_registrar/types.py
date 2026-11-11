@@ -10,7 +10,8 @@ class DefaultAdminsResolver(Protocol):
 	def __call__(
 		self,
 		model_class: type[Model],
-		admins_for_models: Any
+		default_admins_for_models: Any,
+		/,
 	) -> type[ModelAdmin]:
 		"""
 		Args:
