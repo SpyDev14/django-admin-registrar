@@ -70,14 +70,7 @@ testing = [
 DJANGO_SETTINGS_MODULE = "tests.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 
-# [tool.poetry]
-# packages = [
-# 	{ include = "admin_registrar", from = "." }
-# ]
-
 [build-system]
-# requires = ["poetry-core>=2.0.0"]
-# build-backend = "poetry.core.masonry.api"
 requires = ["uv_build>=0.9.5,<0.10"]
 build-backend = "uv_build"
 
