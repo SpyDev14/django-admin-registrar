@@ -18,6 +18,7 @@
 - `AdminRegistrar._is_model_registered_already` renamed to `AdminRegistrar._is_model_registered`
 - Argument `admins_for_models` of `DefaultAdminsResolver.__call__` now positional-only (and renamed to `default_admins_for_models`, bot it does't matter).
 - Argument `model_class` of `DefaultAdminsResolver.__call__` now positional-only.
+- `logging.RECOMMENDED_NAME` was removed. Use `admin_registrar.registrars` directly.
 
 ### 🔁 Changed
 - `COLORED_LOGS` parameter renamed to `ENABLE_COLORED_LOGS` and new default is `True` (being `False`). It is not breaking change because old default is `False`. But it enable colors in projects where colors was disabled before. You should set `ENABLE_COLORED_LOGS` to `False` id you did'nt need it.
