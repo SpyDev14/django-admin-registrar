@@ -12,7 +12,7 @@
 
 ## [Unreleased]
 ### 💥 Breaking Changes
-- `AdminRegistrar.__init__` kwargs dublicated `Config` cvars was removed, use `config` by `config.with_overrides(...)`.
+- `AdminRegistrar.__init__` kwargs dublicate `Config` cvars was removed, use `config` by `config.with_overrides(...)`.
 - `DefaultAdminsResolver` signature is changed. Was: `(type[Model]) -> type[ModelAdmin]`, now: `(type[Model], Any) -> type[ModelAdmin]`. Second arg (`Any`) is `config.ADMINS_FOR_MODELS`. `ADMINS_FOR_MODELS` now can be anything, and will be given as second arg to used default admins resolver.
 - `AdminRegistrar._app` renamed to `_app_class` (reminder: `_x` is `protected`, not `private`, can be used in child classes)
 - `AdminRegistrar._is_model_registered_already` renamed to `AdminRegistrar._is_model_registered`
@@ -24,12 +24,10 @@
 
 ### 🔁 Changed
 - `COLORED_LOGS` parameter renamed to `ENABLE_COLORED_LOGS` and new default is `True` (being `False`). It is not breaking change because old default is `False`. But it enable colors in projects where colors was disabled before. You should set `ENABLE_COLORED_LOGS` to `False` id you did'nt need it. You have seen warning
-- `AdminRegistrar` kwargs sync with used cvars.
 - Attempt to re-register admins by AdminRegistrar now throws `RuntimeError`.
 
 ### ⚠️ Deprecated
-- Rename with back compatibility. `AdminRegistrar.peform_register` to `register` for fix type (is first; was
-  peForm register), and shorter name. This will be removed in future.
+- Rename with back compatibility `AdminRegistrar.peform_register` to `register` for fix type (is first; was peForm register), and shorter name. This will be removed in `v1.0.0`.
 
 ### ✨ Added
 - `AdminRegistrar` registering now write warning on attempt to register already registered model.
