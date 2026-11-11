@@ -140,11 +140,11 @@ class _CVar(Generic[_T]):
 			return self._default
 
 		if self._default_factory is not None:
-			assert self._default is None
+			assert self._default is UNSET
 			assert self._raw_default is None
 			return self._default_factory()
 
-		assert self._default is None
+		assert self._default is UNSET
 		assert self._default_factory is None
 		return self._process_raw(self._raw_default)
 
