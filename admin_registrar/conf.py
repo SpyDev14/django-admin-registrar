@@ -12,7 +12,7 @@ from django.conf import settings as django_settings
 import django.contrib.admin
 
 from admin_registrar.internal.unset import UNSET, UnsetT
-from admin_registrar.internal.types import IterableAbstractSet, one_or_seq_to_seq
+from admin_registrar.internal.types import one_or_seq_to_seq, ReadOnlySet
 from admin_registrar.internal import typename
 from admin_registrar.internal.verbose import verb_list
 from admin_registrar.types import DefaultAdminsResolver, AdminRegistry
@@ -284,7 +284,7 @@ def _validate_is_subclass(class_or_tuple_or_callback: type | tuple[type, ...] | 
 		raise CVarTypeError(f"{cvar.name} should be subclass of {verb_list(classes)}, got: {typename(value)}.")
 	return validator
 
-def _validate_value_in(enum: IterableAbstractSet[_T]):
+def _validate_value_in(enum: ReadOnlySet[_T]):
 	def validator(value, cvar: _CVarInfo):
 		if value not in enum:
 			raise CVarValueError(f"{cvar.name} should be in {{{', '.join(map(str, enum))}}}, got: {value}.")
