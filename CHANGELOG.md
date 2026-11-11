@@ -24,6 +24,7 @@
 ### 🔁 Changed
 - `COLORED_LOGS` parameter renamed to `ENABLE_COLORED_LOGS` and new default is `True` (being `False`). It is not breaking change because old default is `False`. But it enable colors in projects where colors was disabled before. You should set `ENABLE_COLORED_LOGS` to `False` id you did'nt need it.
 - `AdminRegistrar` kwargs sync with used cvars.
+- Attempt to re-register admins by AdminRegistrar now throws `RuntimeError`.
 
 ### ⚠️ Deprecated
 - Rename with back compatibility. `AdminRegistrar.peform_register` to `register` for fix type (is first; was
