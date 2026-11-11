@@ -313,12 +313,12 @@ def _validate_value_in(enum: IterableAbstractSet[_T]):
 _RegisteringLogColorsTypeRef = _TypeRef["RegisteringLogColors"]('admin_registrar.dataclasses.RegisteringLogColors')
 class Config(_BaseConfig):
 	ADMINS_FOR_MODELS: _CVar[Any] = _CVar(
-		raw_default='admin_registrar.internal.defaults_for_conf.get_default_admins_for_models',
+		raw_default='admin_registrar.internal.conf_defaults.get_default_admins_for_models',
 		processors=[_importable_factory_processor],
 		validators=[])
 	"""Default admins for models. Named just "Admins for models" for shorter name"""
 	DEFAULT_ADMINS_RESOLVER: _CVar[DefaultAdminsResolver] = _CVar(
-		raw_default='admin_registrar.internal.defaults_for_conf.DEFAULT_RESOLVER',
+		raw_default='admin_registrar.internal.conf_defaults.DEFAULT_RESOLVER',
 		processors=[_importable_processor],
 		validators=[_validate_is_instance(DefaultAdminsResolver)])
 	HIDDEN_ADMIN_CLASS: _CVar[type[ModelAdmin]] = _CVar(
