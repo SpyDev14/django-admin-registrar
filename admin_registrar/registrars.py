@@ -1,7 +1,7 @@
 from typing import Any, Iterable, Iterator, Literal, MutableMapping, MutableSet
 import logging
 
-from django.contrib.admin import ModelAdmin, options, site
+from django.contrib.admin import ModelAdmin, options
 from django.db.models import Model
 from django.apps import AppConfig, apps
 
@@ -203,7 +203,7 @@ class AdminRegistrar:
 		self._admin_registry.register(model, admin_class)
 
 	def _is_model_registered(self, model: type[Model]) -> bool:
-		return site.is_registered(model)
+		return self._admin_registry.is_registered(model)
 
 	def _try_register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
 		if self._is_model_registered(model):
