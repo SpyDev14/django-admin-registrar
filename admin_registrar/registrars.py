@@ -78,7 +78,7 @@ class AdminRegistrar:
 		for model in models:
 			self.exclude(model)
 
-	def exclude_inline(self, inline: type[options.InlineModelAdmin]):
+	def exclude_inline(self, inline: _TInline) -> _TInline:
 		"""
 		Exclude model who used in given inline.
 
