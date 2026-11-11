@@ -15,8 +15,10 @@ class DefaultAdminsResolver(Protocol):
 	) -> type[ModelAdmin]:
 		"""
 		Args:
-			model_class: model to resolving
-			admins_for_models: given from AdminRegistrar (can be overrided).
-				In regular case is `config.ADMINS_FOR_MODELS`.
+			model_class:
+				Model to resolving.
+			default_admins_for_models:
+				Default admins for models. In regular case, is
+				`config.ADMINS_FOR_MODELS`, but can be local overridden.
 		"""
 		...
