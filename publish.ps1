@@ -9,8 +9,8 @@ param(
 
 # uvIndex can bu null for use default index
 $targets = @{
-    public = @{ uvIndex = "public"; tokenVar = "UV_PUBLISH_TOKEN_FOR_PUBLIC" }
-    test   = @{ uvIndex = "test";   tokenVar = "UV_PUBLISH_TOKEN_FOR_TEST"   }
+    public = @{ uvIndex = $null;  tokenVar = "UV_PUBLISH_TOKEN_FOR_PUBLIC" }
+    test   = @{ uvIndex = "test"; tokenVar = "UV_PUBLISH_TOKEN_FOR_TEST"   }
 }
 
 $target = $targets[$index]

@@ -86,8 +86,4 @@ module-root = ""
 name = "test"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
-
-[[tool.uv.index]]
-name = "public"
-url = "https://pypi.org/simple/"
-publish-url = "https://pypi.org/legacy/"
+explicit = true
