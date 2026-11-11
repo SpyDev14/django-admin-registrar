@@ -15,7 +15,7 @@ from admin_registrar.internal.unset import UNSET, UnsetT
 from admin_registrar.internal.types import IterableAbstractSet, one_or_seq_to_seq
 from admin_registrar.internal import typename
 from admin_registrar.internal.verbose import verb_list
-from admin_registrar.types import DefaultAdminsResolver
+from admin_registrar.types import DefaultAdminsResolver, AdminRegistry
 
 if TYPE_CHECKING:
 	from admin_registrar.dataclasses import RegisteringLogColors
