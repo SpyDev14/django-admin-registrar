@@ -36,7 +36,7 @@ class AdminRegistrar:
 		# defined __bool__ can be ignored, so i write this
 		def _(a, b): return a if a is not None else b
 
-		self._app = app
+		self._app_class = app
 		self._excluded_models   = _(excluded_models,   set())
 		self._hidden_models     = _(hidden_models,     set())
 		self._admins_for_models = _(admins_for_models, dict())
@@ -244,7 +244,7 @@ class AdminRegistrar:
 
 		start_text = (
 			f"model {MODEL_COLOR}{typename(model)}{Fore.RESET} "
-			f"from {APP_COLOR}{self._app.name}{Fore.RESET}"
+			f"from {APP_COLOR}{self._app_class.name}{Fore.RESET}"
 		)
 
 		if was == "excluded":
@@ -258,18 +258,18 @@ class AdminRegistrar:
 		return f"{start_text} {middle_text} {ADMIN_COLOR}{typename(admin_class)}{Fore.RESET} admin class."
 
 	def _get_models_to_register(self) -> Iterator[type[Model]]:
-		return apps.get_app_config(self._app.name).get_models()
+		return apps.get_app_config(self._app_class.name).get_models()
 
 	def _log_registering(self, msg: object) -> None:
 		_logger.log(self._registering_log_level, msg)
 
 	def register(self):
 		if self._registration_performed:
-			msg = f'An attempt to re-register for {self._app.name} app.'
+			msg = f'An attempt to re-register for {self._app_class.name} app.'
 			_logger.error(msg)
 			return
 
-		self._log_registering(f'\n-- Start {self._registering_log_colors.app}{self._app.name}{Fore.RESET} registration -------')
+		self._log_registering(f'\n-- Start {self._registering_log_colors.app}{self._app_class.name}{Fore.RESET} registration -------')
 		for model_class in self._get_models_to_register():
 			if model_class in self._excluded_models:
 				self._log_registering(self._make_log_message(model_class, was="excluded"))
