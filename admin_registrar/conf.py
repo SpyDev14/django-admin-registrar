@@ -1,9 +1,9 @@
 from dataclasses import dataclass, is_dataclass
 from typing import (
-	Callable, Generic, Mapping, NoReturn, Sequence, TypeAlias,
+	Callable, Generic, Iterable, Mapping, MutableMapping, NoReturn, Sequence, TypeAlias,
 	TypeVar, Self, overload, Any, TYPE_CHECKING, cast
 )
-from copy import deepcopy
+from copy import copy
 import logging
 
 from django.utils.module_loading import import_string
@@ -49,9 +49,49 @@ class _TypeRef(Generic[_T]):
 			return cast(type[_T], import_string(self._class_or_import_path))
 		return self._class_or_import_path
 
-# maked for type checks in CVar (i plane to separate CVar & processors to
-# internal.configuring in the future)
+
 class _BaseConfig:
+	def __init__(self, *, _root_config_dict: Mapping[str, Any]) -> None:
+		"""INTERNAL USE ONLY"""
+		self.__root_config_dict: Mapping[str, Any] = _root_config_dict
+		self.__overrides: dict[str, Any] | None = None
+
+	def __copy__(self) -> Self:
+		cls = type(self)
+		instance = cls(_root_config_dict=self.__root_config_dict)
+		if self.__overrides:
+			instance.__overrides = self.__overrides.copy()
+		return instance
+
+	def __set_override(self, cvar: "_CVar[_T]", value: _T):
+		if self.__overrides is None:
+			self.__overrides = {}
+
+		# and for context: i add CVar._validate_value TOO long times ago add overriding
+		# "this is named good arhitecture" ;)
+		cvar._validate_value(value)
+		self.__overrides[str(cvar)] = value
+
+	def with_overrides(self, overrides: Mapping["_CVar[Any]", Any]) -> Self:
+		instance = copy(self)
+
+		if instance.__overrides is None:
+			instance.__overrides = {}
+
+		for cvar, value in overrides.items():
+			instance.__set_override(cvar, value)
+
+		return instance
+
+	# Just for context my first idea is self._config_dicts: list[...] = [_get_config_dict()]
+	# But this interface looks good
+	@property
+	def _config_dicts(self) -> Iterable[Mapping[str, Any]]:
+		"""ALLOWED USE IN `_CVar`"""
+		if self.__overrides is not None:
+			return (self.__overrides, self.__root_config_dict)
+		return (self.__root_config_dict,)
+
 	@classmethod
 	def _get_cvar_names(cls) -> set[str]:
 		"""ALLOWED INTERNAL IMPORT"""
@@ -126,6 +166,7 @@ class _CVar(Generic[_T]):
 		return cast(_T, value)
 
 	def _validate_value(self, value: _T) -> None:
+		"""ALLOWED USE IN `_BaseConfig`"""
 		for validate in self._validators:
 			validate(value, self._get_info())
 
@@ -164,7 +205,8 @@ class _CVar(Generic[_T]):
 	def __get__(self, instance: object | None, owner: type) -> Self | _T:
 		if instance is None:
 			return self
-		return self._get_value()
+		assert isinstance(instance, _BaseConfig)
+		return self._get_value(instance)
 
 	def __set__(self, instance: object, value: Any) -> NoReturn:
 		raise AttributeError("CVar-s can't be set from instance")
@@ -332,10 +374,4 @@ class Config(_BaseConfig):
 		validators=[_validate_is_instance(AdminRegistry)])
 
 # MARK: Public API
-# Temporary private
-# Needs for feature described at Config def
-def __get_config_dict() -> dict[str, Any]:
-	"""Returns deep copy of used config dict"""
-	return deepcopy(_get_config_dict())
-
-config = Config()
+config = Config(_root_config_dict=_get_config_dict())
