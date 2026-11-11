@@ -42,6 +42,7 @@ colorama = ['colorama', ]
 
 [dependency-groups]
 dev = [
+    "vermin>=1.9.2",
 ]
 testing = [
 # 	"pytest",
