@@ -33,6 +33,7 @@
 ### ✨ Added
 - `AdminRegistrar` registering now write warning on attempt to register already registered model.
 - Added `AdminRegistry` type: now you can specify special admin registry for register models in admin site (before was `django.contrib.admin:sire` uses directly).
+- Added `AdminRegistry.defer_registration`: now you can defer registration to App ready event (`YourAppConfig.ready` method will be wrapped). Previously this had to be done manually.
 
 ## [0.2.1] - 2026-07-28
 ### 🐛 Fixed

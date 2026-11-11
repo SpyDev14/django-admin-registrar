@@ -1,4 +1,5 @@
-from typing import Any, Iterable, Iterator, Literal, MutableMapping, MutableSet
+from functools import wraps
+from typing import Any, Iterable, Iterator, Literal, MutableMapping, MutableSet, TypeVar
 import logging
 
 from django.contrib.admin import ModelAdmin, options
@@ -13,6 +14,7 @@ from admin_registrar.conf import config
 
 
 _logger = logging.getLogger(__name__)
+_TInline = TypeVar('_TInline', bound=type[options.InlineModelAdmin])
 
 # Reminder: prefix "_" means protected access mode, override by subclasses
 # is allowed
@@ -49,6 +51,7 @@ class AdminRegistrar:
 		self._admin_registry            = _(admin_registry,            config.ADMIN_REGISTRY)
 
 		self._registration_performed: bool = False
+		self._registration_is_deferred: bool = False
 
 	def exclude(self, model: type[Model]):
 		"""
@@ -291,3 +294,34 @@ class AdminRegistrar:
 	# 2. change to better name (just "register" instead "perform_registering")
 	@deprecated("Use register instead. Will be removed in v1.0.0")
 	def peform_register(self): self.register()
+
+	def defer_registration(self):
+		# TODO: add better docstring!!
+		"""
+		Defer registration to given app `ready`.
+
+		Use when you define admin classes at several modules.
+
+		Given app class `ready` method will be overridden to special,
+		wrapper.
+
+		This registrar `register` will be called **after** original `ready`.
+
+		Ps: Previously this had to be done manually.
+		"""
+		if self._registration_is_deferred:
+			raise RuntimeError(
+				f'An attempt to double defer registration admins by '
+				f'AdminRegistrar for {self._app_class.name} app.'
+			)
+
+		original_ready = self._app_class.ready
+		registrar = self
+
+		@wraps(original_ready)
+		def new_ready(self: AppConfig): # name `self` is required for type matching
+			original_ready(self)
+			registrar.register()
+
+		self._app_class.ready = new_ready
+		self._registration_is_deferred = True
