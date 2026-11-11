@@ -106,9 +106,6 @@ class _CVar(Generic[_T]):
 		self._validators = validators
 		self._raw_default = raw_default
 		self._name = "" # will be set after __init__ in __set_name__ if in class
-		# For check value cache is valid
-		self._cached_raw: Any | None = None
-		self._cached_value: _T | None = None
 
 	def __set_name__(self, owner: type, name: str):
 		if not issubclass(owner, _BaseConfig):
@@ -148,29 +145,17 @@ class _CVar(Generic[_T]):
 		assert self._default_factory is None
 		return self._process_raw(self._raw_default)
 
-	def _is_cache_valid(self, raw: Any) -> bool:
-		if (self._cached_raw is None):
-			return False
+	def _get_value(self, cfg: _BaseConfig) -> _T:
+		raw: Any | UnsetT = UNSET
+		for config_dict in cfg._config_dicts:
+			raw = config_dict.get(self._name, UNSET)
+			if raw is not UNSET: break
 
-		# If eq operator is not overridden cache always invalid
-		if type(self._cached_raw).__eq__ == object.__eq__:
-			return False
-
-		return self._cached_raw is not None and self._cached_raw == raw
-
-	def _get_value(self) -> _T:
-		self._cached_raw = raw = _get_config_dict().get(self._name, UNSET)
 		if raw is UNSET:
-			self._cached_value = self._get_default_value()
-			return self._cached_value
-
-		if self._is_cache_valid(raw):
-			assert self._cached_value is not None
-			return self._cached_value
+			return self._get_default_value()
 
 		value = self._process_raw(raw)
 		self._validate_value(value)
-		self._cached_value = value
 		return value
 
 	@overload
