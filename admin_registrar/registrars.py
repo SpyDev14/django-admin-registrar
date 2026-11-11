@@ -267,6 +267,7 @@ class AdminRegistrar:
 		if self._registration_performed:
 			msg = f'An attempt to re-register for {self._app.name} app.'
 			_logger.error(msg)
+			return
 
 		self._log_registering(f'\n-- Start {self._registering_log_colors.app}{self._app.name}{Fore.RESET} registration -------')
 		for model_class in self._get_models_to_register():
