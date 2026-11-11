@@ -5,17 +5,15 @@ from django.contrib.admin import ModelAdmin
 from django.db.models import Model
 
 from admin_registrar.internal import typename
-from admin_registrar.conf import Config, config
 
 _PARSED_ADMINS_FOR_MODELS_CACHE: Mapping[type[Model], type[ModelAdmin]] | None = None
-def first_mro_match_resolver(model_class: type[Model], admins_for_models: Any) -> type[ModelAdmin]:
+def first_mro_match_resolver(model_class: type[Model], default_admins_for_models: Any) -> type[ModelAdmin]:
+	global _PARSED_ADMINS_FOR_MODELS_CACHE
 	if _PARSED_ADMINS_FOR_MODELS_CACHE is None:
-		global _PARSED_ADMINS_FOR_MODELS_CACHE
-		data: Mapping[str, str] = admins_for_models
+		data = default_admins_for_models
 		base_err_msg = (
-			str(Config.ADMINS_FOR_MODELS) if admins_for_models is config.ADMINS_FOR_MODELS
-			else "given admins_for_models"
-			f"for {first_mro_match_resolver.__name__}"
+			f"given default_admins_for_models for " +
+			first_mro_match_resolver.__name__ +
 			" should be Mapping[str, str]"
 		)
 
