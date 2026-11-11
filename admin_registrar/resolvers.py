@@ -6,6 +6,7 @@ from django.contrib.admin import ModelAdmin
 from django.db.models import Model
 
 from admin_registrar.internal import typename
+from admin_registrar.types import DefaultAdminsResolver
 
 
 _fmmr_cache: WeakKeyDictionary[object, Mapping[type[Model], type[ModelAdmin]]] = WeakKeyDictionary()
@@ -38,3 +39,8 @@ def first_mro_match_resolver(model_class: type[Model], default_admins_for_models
 		if cls in _fmmr_cache[default_admins_for_models]:
 			return _fmmr_cache[default_admins_for_models][cls]
 	return ModelAdmin
+
+### ALLOWED INTERNAL IMPORT ###
+_DEFAULT_RESOLVER: DefaultAdminsResolver = first_mro_match_resolver
+def _get_default_admins_for_models() -> Any:
+	return {}
