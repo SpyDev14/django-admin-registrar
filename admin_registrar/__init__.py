@@ -1,2 +1,2 @@
-from .registrars import AdminRegistrar
-from .conf import config, Config
+from .registrars import AdminRegistrar as AdminRegistrar
+# from .conf import config, Config
