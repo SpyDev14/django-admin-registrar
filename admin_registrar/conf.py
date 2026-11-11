@@ -31,7 +31,7 @@ def _get_config_dict() -> dict[str, Any]:
 	)
 
 	if not isinstance(config_dict, dict):
-		raise TypeError(f'{_CONFIG_DICT_NAME} should be a dict, got: {typename(config_dict)}.')
+		raise TypeError(f"{_CONFIG_DICT_NAME} should be a dict, got: {typename(config_dict)}.")
 
 	for key in config_dict.keys():
 		assert isinstance(key, str)
@@ -96,9 +96,9 @@ class _CVar(Generic[_T]):
 		validators: Sequence[_CVarValidator],
 	) -> None:
 		match (sum((default is not UNSET, default_factory is not None, raw_default is not None))):
-			case 0: raise ValueError(f"Default value for CVar should be specified")
+			case 0: raise ValueError(f"Default value for CVar should be specified.")
 			case 1: pass
-			case _: raise ValueError(f"Default value for CVar should be specified at singe time")
+			case _: raise ValueError(f"Default value for CVar should be specified at singe time.")
 
 		self._default = default
 		self._default_factory = default_factory
@@ -198,11 +198,11 @@ class CVarValueError(ValueError):
 # MARK: Processors
 def _importable_processor(raw, cvar: _CVarInfo):
 	if not isinstance(raw, str):
-		raise CVarTypeError(f"{cvar.name} should be a string, got: {typename(raw)}")
+		raise CVarTypeError(f"{cvar.name} should be a string, got: {typename(raw)}.")
 
 	try: return import_string(raw)
 	except ImportError as ex:
-		raise CVarValueError(f"{cvar.name} should be a dotted module path to object, import is failed. Got: {raw}") \
+		raise CVarValueError(f"{cvar.name} should be a dotted module path to exists object, import is failed. Got: {raw}.") \
 			from ex
 
 # maybe refactor to processors pipeline?
@@ -228,11 +228,11 @@ def _dataclass_processor(dataclass_ref: _TypeRef[_T]):
 	def processor(raw, cvar: _CVarInfo):
 		base_raw_err_msg = f"{cvar.name} should be Mapping[str, Any]"
 		if not isinstance(raw, Mapping):
-			raise CVarTypeError(f"{base_raw_err_msg}, got: {typename(raw)}")
+			raise CVarTypeError(f"{base_raw_err_msg}, got: {typename(raw)}.")
 
 		for i, (key, _) in enumerate(raw.items()):
 			if not isinstance(key, str): raise CVarTypeError(
-				f"{base_raw_err_msg}, got mapping where key type is {typename(key)} (key position is {i})"
+				f"{base_raw_err_msg}, got mapping where key type is {typename(key)} (key position is {i})."
 			)
 		params: Mapping[str, Any] = raw
 
@@ -261,7 +261,7 @@ def _validate_is_instance(class_or_tuple_or_callback: type | tuple[type, ...] | 
 			return
 
 		classes = map(typename, one_or_seq_to_seq(type, class_or_tuple))
-		raise CVarTypeError(f"{cvar.name} should be {verb_list(classes)}, got: {typename(value)}")
+		raise CVarTypeError(f"{cvar.name} should be {verb_list(classes)}, got: {typename(value)}.")
 	return validator
 
 @overload
@@ -281,13 +281,13 @@ def _validate_is_subclass(class_or_tuple_or_callback: type | tuple[type, ...] | 
 			return
 
 		classes = map(typename, one_or_seq_to_seq(type, class_or_tuple))
-		raise CVarTypeError(f"{cvar.name} should be subclass of {verb_list(classes)}, got: {typename(value)}")
+		raise CVarTypeError(f"{cvar.name} should be subclass of {verb_list(classes)}, got: {typename(value)}.")
 	return validator
 
 def _validate_value_in(enum: IterableAbstractSet[_T]):
 	def validator(value, cvar: _CVarInfo):
 		if value not in enum:
-			raise CVarValueError(f"{cvar.name} should be in {{{', '.join(map(str, enum))}}}, got: {value}")
+			raise CVarValueError(f"{cvar.name} should be in {{{', '.join(map(str, enum))}}}, got: {value}.")
 	return validator
 
 

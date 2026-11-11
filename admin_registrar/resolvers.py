@@ -23,10 +23,10 @@ def first_mro_match_resolver(model_class: type[Model], default_admins_for_models
 		parsed = _PARSED_ADMINS_FOR_MODELS_CACHE = {}
 		for i, (key, value) in enumerate(data.items()):
 			if not isinstance(key, str): raise TypeError(
-				f"{base_err_msg}, got mapping key type is {typename(key)} (position is {i})."
+				f"{base_err_msg}, got mapping where key is {typename(key)} (position is {i})."
 			)
 			if not isinstance(value, str): raise TypeError(
-				f"{base_err_msg}, got mapping value type is {typename(value)} (position is {i})."
+				f"{base_err_msg}, got mapping where value is {typename(value)} (position is {i})."
 			)
 			parsed[import_string(key)] = import_string(value)
 

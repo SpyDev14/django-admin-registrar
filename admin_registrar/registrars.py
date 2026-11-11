@@ -14,7 +14,7 @@ from admin_registrar.conf import config
 
 _logger = logging.getLogger(__name__)
 
-# Reminder: prefix "_" means protected access mode, override by subclassess
+# Reminder: prefix "_" means protected access mode, override by subclasses
 # is allowed
 class AdminRegistrar:
 	def __init__(self,
