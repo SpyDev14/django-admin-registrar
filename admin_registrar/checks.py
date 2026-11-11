@@ -39,7 +39,7 @@ def check_unknown_config_keys(*args, **kwargs) -> Sequence[CheckMessage]:
 @register(Tags.admin)
 def check_all_specified_cvars_valid(*args, **kwargs) -> Sequence[CheckMessage]:
 	messages = []
-	for cvar_attr in conf.Config._get_known_keys_for_conf_dict():
+	for cvar_attr in conf.Config._get_cvar_names():
 		try: getattr(conf.config, cvar_attr)
 		except (conf.CVarTypeError, conf.CVarValueError) as ex:
 			messages.append(CheckMessage(
