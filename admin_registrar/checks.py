@@ -23,7 +23,7 @@ def check_unknown_config_keys(*args, **kwargs) -> Sequence[CheckMessage]:
 	config_dict = conf._get_config_dict()
 	messages = []
 
-	known_keys = conf.Config._get_known_keys_for_conf_dict()
+	known_keys = conf.Config._get_cvar_names()
 	last: CheckMessage | None = None
 	for unknown_key in config_dict.keys() - known_keys:
 		messages.append(last := CheckMessage(

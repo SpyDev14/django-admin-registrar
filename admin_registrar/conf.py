@@ -53,8 +53,8 @@ class _TypeRef(Generic[_T]):
 # internal.configuring in the future)
 class _BaseConfig:
 	@classmethod
-	def _get_known_keys_for_conf_dict(cls) -> set[str]:
-		"""FOR INTERNAL USE, NOT PROTECTED"""
+	def _get_cvar_names(cls) -> set[str]:
+		"""ALLOWED INTERNAL IMPORT"""
 		return {
 			attr_name for attr_name in dir(cls)
 			if not attr_name.startswith('_') and

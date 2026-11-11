@@ -237,7 +237,7 @@ class AdminRegistrar:
 		admin_class: type[ModelAdmin] | None = None,
 		was: Literal["excluded", "hidden"] | None = None
 	) -> str:
-		assert admin_class is not None == was is None
+		assert (admin_class is None) != (was is None)
 		assert was in { "excluded", "hidden", None }
 
 		MODEL_COLOR     = self._registering_log_colors.model
@@ -296,7 +296,6 @@ class AdminRegistrar:
 	def peform_register(self): self.register()
 
 	def defer_registration(self):
-		# TODO: add better docstring!!
 		"""
 		Defer registration to given app `ready`.
 
