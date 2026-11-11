@@ -9,6 +9,7 @@ import logging
 from django.utils.module_loading import import_string
 from django.contrib.admin import ModelAdmin
 from django.conf import settings as django_settings
+import django.contrib.admin
 
 from admin_registrar.internal.unset import UNSET, UnsetT
 from admin_registrar.internal.types import IterableAbstractSet, one_or_seq_to_seq
@@ -337,6 +338,9 @@ class Config(_BaseConfig):
 		# and conf.py can be imported before this override
 		default_factory=lambda: logging.DEBUG if django_settings.DEBUG else logging.INFO,
 		validators=[_validate_is_instance(int)])
+	ADMIN_REGISTRY: _CVar[AdminRegistry] = _CVar(
+		default=django.contrib.admin.site,
+		validators=[_validate_is_instance(AdminRegistry)])
 
 # MARK: Public API
 # Temporary private

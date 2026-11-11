@@ -22,3 +22,30 @@ class DefaultAdminsResolver(Protocol):
 				`config.ADMINS_FOR_MODELS`, but can be local overridden.
 		"""
 		...
+
+class AdminRegistry(Protocol):
+	def register(
+		self,
+		model_class: type[Model],
+		admin_class: type[ModelAdmin],
+		/,
+	) -> None:
+		"""
+		Args:
+			model_class: Model to register.
+			admin_class: Admin class for given model.
+		d"""
+		...
+
+	def is_registered(
+		self,
+		model_class: type[Model],
+		/,
+	) -> bool:
+		"""
+		Returns `True` if model already registered, else `False`.
+
+		Args:
+			model_class: Model to check.
+		"""
+		...

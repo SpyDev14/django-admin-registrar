@@ -8,7 +8,7 @@ from django.apps import AppConfig, apps
 from admin_registrar.internal import typename, deprecated
 from admin_registrar.utils.colors import Fore
 from admin_registrar.dataclasses import RegisteringLogColors
-from admin_registrar.types import DefaultAdminsResolver
+from admin_registrar.types import DefaultAdminsResolver, AdminRegistry
 from admin_registrar.conf import config
 
 
@@ -30,6 +30,7 @@ class AdminRegistrar:
 			registering_log_level:     int | None = None,
 			registering_log_colors:    RegisteringLogColors | None = None,
 			hidden_admin_class:        type[ModelAdmin] | None = None,
+			admin_registry:            AdminRegistry | None = None,
 		):
 		# `or` return right if left is False. Empty dict and other stuff with
 		# defined __bool__ can be ignored, so i write this
@@ -45,6 +46,7 @@ class AdminRegistrar:
 		self._registering_log_level     = _(registering_log_level,     config.REGISTERING_LOG_LEVEL)
 		self._registering_log_colors    = _(registering_log_colors,    config.REGISTERING_LOG_COLORS)
 		self._hidden_admin_class        = _(hidden_admin_class,        config.HIDDEN_ADMIN_CLASS)
+		self._admin_registry            = _(admin_registry,            config.ADMIN_REGISTRY)
 
 		self._registration_performed: bool = False
 
@@ -198,7 +200,7 @@ class AdminRegistrar:
 			self.hide(model)
 
 	def _register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
-		site.register(model, admin_class)
+		self._admin_registry.register(model, admin_class)
 
 	def _is_model_registered(self, model: type[Model]) -> bool:
 		return site.is_registered(model)

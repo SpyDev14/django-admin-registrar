@@ -29,6 +29,7 @@
 
 ### ✨ Added
 - `AdminRegistrar` registering now write warning on attempt to register already registered model.
+- Added `AdminRegistry` type: now you can specify special admin registry for register models in admin site (before was `django.contrib.admin:sire` uses directly).
 
 ## [0.2.1] - 2026-07-28
 ### 🐛 Fixed
