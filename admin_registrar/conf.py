@@ -66,7 +66,6 @@ class _BaseConfig:
 class _CVarInfo:
 	name: str
 
-
 _CVarProcessor: TypeAlias = Callable[[Any, _CVarInfo], Any | NoReturn]
 _CVarValidator: TypeAlias = Callable[[Any, _CVarInfo], None | NoReturn]
 

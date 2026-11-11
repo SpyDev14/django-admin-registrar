@@ -42,5 +42,4 @@ def first_mro_match_resolver(model_class: type[Model], default_admins_for_models
 
 ### ALLOWED INTERNAL IMPORT ###
 _DEFAULT_RESOLVER: DefaultAdminsResolver = first_mro_match_resolver
-def _get_default_admins_for_models() -> Any:
-	return {}
+def _get_default_admins_for_models() -> Any: return {}
