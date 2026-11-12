@@ -209,7 +209,11 @@ class _CVar(Generic[_T]):
 		return self._get_value(instance)
 
 	def __set__(self, instance: object, value: Any) -> NoReturn:
-		raise AttributeError("CVar-s can't be set from instance")
+		raise AttributeError(
+			f"CVar-s can't be set from instance, use Config."
+			f"{_BaseConfig.with_overrides.__name__}() method to create copy"
+			" of config with local override."
+		)
 
 
 # Special errors for processors & validators
