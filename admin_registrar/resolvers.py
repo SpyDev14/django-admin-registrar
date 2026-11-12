@@ -39,7 +39,3 @@ def first_mro_match_resolver(model_class: type[Model], default_admins_for_models
 		if cls in _fmmr_cache[default_admins_for_models]:
 			return _fmmr_cache[default_admins_for_models][cls]
 	return ModelAdmin
-
-### ALLOWED INTERNAL IMPORT ###
-_DEFAULT_RESOLVER: DefaultAdminsResolver = first_mro_match_resolver
-def _get_default_admins_for_models() -> Any: return {}

@@ -13,7 +13,7 @@ import django.contrib.admin
 
 from admin_registrar.internal.unset import UNSET, UnsetT
 from admin_registrar.internal.types import one_or_seq_to_seq, ReadOnlySet
-from admin_registrar.internal import typename
+from admin_registrar.internal import conf_defaults, typename
 from admin_registrar.internal.verbose import verb_list
 from admin_registrar.types import DefaultAdminsResolver, AdminRegistry
 
@@ -404,8 +404,7 @@ def _validate_value_in(enum: ReadOnlySet[_T]):
 _RegisteringLogColorsTypeRef = _TypeRef["RegisteringLogColors"]('admin_registrar.dataclasses.RegisteringLogColors')
 class Config(_BaseConfig):
 	ADMINS_FOR_MODELS: _CVar[Any] = _CVar(
-		raw_default='admin_registrar.resolvers._get_default_admins_for_models',
-		processors=[_importable_factory_processor],
+		default_factory=dict,
 		validators=[])
 	"""Default admins for models. Named just "Admins for models" for shorter name"""
 	DEFAULT_ADMINS_RESOLVER: _CVar[DefaultAdminsResolver] = _CVar(
