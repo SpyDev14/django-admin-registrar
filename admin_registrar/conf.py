@@ -1,6 +1,6 @@
 from dataclasses import dataclass, is_dataclass
 from typing import (
-	Callable, Generic, Iterable, Mapping, MutableMapping, NoReturn, Sequence, TypeAlias,
+	Callable, Generic, Mapping, NoReturn, Sequence, TypeAlias,
 	TypeVar, Self, overload, Any, TYPE_CHECKING, cast
 )
 from copy import copy
@@ -51,17 +51,23 @@ class _TypeRef(Generic[_T]):
 
 
 class _BaseConfig:
-	def __init__(self, *, _root_config_dict: Mapping[str, Any]) -> None:
+	# Kwarg needs for forbid directly creation (main reason)
+	def __init__(self, *, _root_config_dict_fact: Callable[[], Mapping[str, Any]]) -> None:
 		"""INTERNAL USE ONLY"""
-		self.__root_config_dict: Mapping[str, Any] = _root_config_dict
-		self.__overrides: dict[str, Any] | None = None
+		self.__root_config_dict_fact = _root_config_dict_fact
+		self.__overrides: dict[_CVar, Any] | None = None
+		self.__raw_overrides: dict[str, Any] | None = None
+		self.__cvars_cache: dict[str, Any] = {}
 
 	def __copy__(self) -> Self:
 		cls = type(self)
-		instance = cls(_root_config_dict=self.__root_config_dict)
+		instance = cls(_root_config_dict_fact=self.__root_config_dict_fact)
 		if self.__overrides:
 			instance.__overrides = self.__overrides.copy()
 		return instance
+
+	def __invalidate_cache(self, cvar: "_CVar[_T]"):
+		self.__cvars_cache.pop(str(cvar), None)
 
 	def __set_override(self, cvar: "_CVar[_T]", value: _T):
 		if self.__overrides is None:
@@ -70,27 +76,53 @@ class _BaseConfig:
 		# and for context: i add CVar._validate_value TOO long times ago add overriding
 		# "this is named good arhitecture" ;)
 		cvar._validate_value(value)
-		self.__overrides[str(cvar)] = value
+		self.__overrides[cvar] = value
+		self.__invalidate_cache(cvar)
+
+	def __set_override_by_raw(self, cvar: "_CVar[_T]", raw_value: Any):
+		if self.__overrides is None:
+			self.__overrides = {}
+
+		value = cvar._process_raw(raw_value)
+		self.__set_override(cvar, value)
+
+	def with_raw_overrides(self, overrides: Mapping["_CVar[Any]", Any]):
+		instance = copy(self)
+
+		for cvar, raw_value in overrides.items():
+			instance.__set_override_by_raw(cvar, raw_value)
+
+		return instance
 
 	def with_overrides(self, overrides: Mapping["_CVar[Any]", Any]) -> Self:
 		instance = copy(self)
-
-		if instance.__overrides is None:
-			instance.__overrides = {}
 
 		for cvar, value in overrides.items():
 			instance.__set_override(cvar, value)
 
 		return instance
 
-	# Just for context my first idea is self._config_dicts: list[...] = [_get_config_dict()]
-	# But this interface looks good
-	@property
-	def _config_dicts(self) -> Iterable[Mapping[str, Any]]:
+	def _get_override_for_cvar(self, cvar: "_CVar[_T]") -> _T | UnsetT:
 		"""ALLOWED USE IN `_CVar`"""
-		if self.__overrides is not None:
-			return (self.__overrides, self.__root_config_dict)
-		return (self.__root_config_dict,)
+		if not self.__overrides:
+			return UNSET
+		return self.__overrides.get(cvar, UNSET)
+
+	def _get_raw_for_cvar(self, cvar: "_CVar[_T]") -> Any | UnsetT:
+		"""ALLOWED USE IN `_CVar`"""
+		key = str(cvar)
+		if self.__raw_overrides is not None and key in self.__raw_overrides:
+			return self.__raw_overrides[key]
+
+		return self.__root_config_dict_fact().get(key, UNSET)
+
+	def _get_cvar_value_from_cache(self, cvar: "_CVar[_T]") -> _T | UnsetT:
+		"""ALLOWED USE IN `_CVar`"""
+		return self.__cvars_cache.get(str(cvar), UNSET)
+
+	def _set_cvar_cache(self, cvar: "_CVar[_T]", value: _T):
+		"""ALLOWED USE IN `_CVar`"""
+		self.__cvars_cache[str(cvar)] = value
 
 	@classmethod
 	def _get_cvar_names(cls) -> set[str]:
@@ -150,7 +182,6 @@ class _CVar(Generic[_T]):
 		if not issubclass(owner, _BaseConfig):
 			raise TypeError("CVar-s can be defined only in Config class")
 		self._name = name
-		self._config_cls: type[_BaseConfig] = owner
 
 	def __str__(self):
 		assert len(self._name) > 0
@@ -186,15 +217,17 @@ class _CVar(Generic[_T]):
 		return self._process_raw(self._raw_default)
 
 	def _get_value(self, cfg: _BaseConfig) -> _T:
-		raw: Any | UnsetT = UNSET
-		for config_dict in cfg._config_dicts:
-			raw = config_dict.get(self._name, UNSET)
-			if raw is not UNSET: break
+		override = cfg._get_override_for_cvar(self)
+		if override is not UNSET:
+			return override
 
-		if raw is UNSET:
-			return self._get_default_value()
+		raw = cfg._get_raw_for_cvar(self)
+		value = (
+			self._process_raw(raw)
+			if raw is not UNSET else
+			self._get_default_value()
+		)
 
-		value = self._process_raw(raw)
 		self._validate_value(value)
 		return value
 
@@ -206,7 +239,14 @@ class _CVar(Generic[_T]):
 		if instance is None:
 			return self
 		assert isinstance(instance, _BaseConfig)
-		return self._get_value(instance)
+
+		cache_value = instance._get_cvar_value_from_cache(self)
+		if cache_value is not UNSET:
+			return cache_value
+
+		value = self._get_value(instance)
+		instance._set_cvar_cache(self, value)
+		return value
 
 	def __set__(self, instance: object, value: Any) -> NoReturn:
 		raise AttributeError(
@@ -276,17 +316,40 @@ def _dataclass_processor(dataclass_ref: _TypeRef[_T]):
 
 
 # MARK: Validators
+_ClassOrTupleOrRef: TypeAlias = type | _TypeRef | tuple[type | _TypeRef, ...]
 @overload
-def _validate_is_instance(class_or_tuple_or_callback: type): ...
+def _resolve_class_or_tuple_or_ref(class_or_tuple_or_ref: type | _TypeRef) -> type: ...
 @overload
-def _validate_is_instance(class_or_tuple_or_callback: tuple[type, ...]): ...
-@overload
-def _validate_is_instance(class_or_tuple_or_callback: Callable[[], type]): ...
-@overload
-def _validate_is_instance(class_or_tuple_or_callback: Callable[[], tuple[type, ...]]): ...
-def _validate_is_instance(class_or_tuple_or_callback: type | tuple[type, ...] | Callable[[], type | tuple[type, ...]]):
+def _resolve_class_or_tuple_or_ref(class_or_tuple_or_ref: tuple[type | _TypeRef, ...]) -> tuple[type, ...]: ...
+def _resolve_class_or_tuple_or_ref(class_or_tuple_or_ref: _ClassOrTupleOrRef):
+		arg = class_or_tuple_or_ref
+
+		if isinstance(arg, type):
+			return arg
+		if isinstance(arg, _TypeRef):
+			return arg.resolve()
+
+		if not isinstance(arg, tuple):
+			raise TypeError(f"Await tuple, got: {typename(arg)}")
+
+		if len(arg) == 0:
+			return ()
+
+		classes = []
+		for type_or_ref in arg:
+			if isinstance(type_or_ref, type):
+				classes.append(type_or_ref)
+			elif isinstance(type_or_ref, _TypeRef):
+				classes.append(type_or_ref.resolve())
+			else:
+				raise TypeError(f"Await TypeRef or type, got: {typename(type_or_ref)}")
+
+		return tuple(classes)
+
+def _validate_is_instance(class_or_tuple_or_ref: _ClassOrTupleOrRef):
 	def validator(value: Any, cvar: _CVarInfo):
-		class_or_tuple = class_or_tuple_or_callback() if callable(class_or_tuple_or_callback) else class_or_tuple_or_callback
+		class_or_tuple = _resolve_class_or_tuple_or_ref(class_or_tuple_or_ref)
+
 		if isinstance(value, class_or_tuple):
 			return
 
@@ -294,18 +357,10 @@ def _validate_is_instance(class_or_tuple_or_callback: type | tuple[type, ...] | 
 		raise CVarTypeError(f"{cvar.name} should be {verb_list(classes)}, got: {typename(value)}.")
 	return validator
 
-@overload
-def _validate_is_subclass(class_or_tuple_or_callback: type): ...
-@overload
-def _validate_is_subclass(class_or_tuple_or_callback: tuple[type, ...]): ...
-@overload
-def _validate_is_subclass(class_or_tuple_or_callback: Callable[[], type]): ...
-@overload
-def _validate_is_subclass(class_or_tuple_or_callback: Callable[[], tuple[type, ...]]): ...
-def _validate_is_subclass(class_or_tuple_or_callback: type | tuple[type, ...] | Callable[[], type | tuple[type, ...]]):
+def _validate_is_subclass(class_or_tuple_or_ref: _ClassOrTupleOrRef):
 	def validator(value: Any, cvar: _CVarInfo):
 		_validate_is_instance(type)(value, cvar)
-		class_or_tuple = class_or_tuple_or_callback() if callable(class_or_tuple_or_callback) else class_or_tuple_or_callback
+		class_or_tuple = _resolve_class_or_tuple_or_ref(class_or_tuple_or_ref)
 
 		if issubclass(value, class_or_tuple):
 			return
@@ -367,7 +422,7 @@ class Config(_BaseConfig):
 	REGISTERING_LOG_COLORS: _CVar["RegisteringLogColors"] = _CVar(
 		raw_default={},
 		processors=[_dataclass_processor(_RegisteringLogColorsTypeRef)],
-		validators=[_validate_is_instance(_RegisteringLogColorsTypeRef.resolve)])
+		validators=[_validate_is_instance(_RegisteringLogColorsTypeRef)])
 	REGISTERING_LOG_LEVEL: _CVar[int] = _CVar(
 		# factory way used because django_settings.DEBUG overrided in some context
 		# and conf.py can be imported before this override
@@ -378,4 +433,4 @@ class Config(_BaseConfig):
 		validators=[_validate_is_instance(AdminRegistry)])
 
 # MARK: Public API
-config = Config(_root_config_dict=_get_config_dict())
+config = Config(_root_config_dict_fact=_get_config_dict)
