@@ -408,7 +408,7 @@ class Config(_BaseConfig):
 		validators=[])
 	"""Default admins for models. Named just "Admins for models" for shorter name"""
 	DEFAULT_ADMINS_RESOLVER: _CVar[DefaultAdminsResolver] = _CVar(
-		raw_default='admin_registrar.resolvers._DEFAULT_RESOLVER',
+		raw_default='admin_registrar.resolvers.first_mro_match_resolver',
 		processors=[_importable_processor],
 		validators=[_validate_is_instance(DefaultAdminsResolver)])
 	HIDDEN_ADMIN_CLASS: _CVar[type[ModelAdmin]] = _CVar(
