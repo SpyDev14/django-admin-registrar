@@ -1,8 +1,11 @@
 # Changelog
 
-## [0.2.2] - 2026-11-16
+## [0.2.3] - 2026-11-16
 ### Fixed
 - `AdminRegistrar._get_models_to_register` now uses `self._app.label` instead `self._app.name` to get app, because `apps.get_app_config` store apps by `label`, not by `name`.
+
+## [0.2.2] - 2026-11-16
+Revoked because contain ctitical error
 
 ## [0.2.1] - 2026-07-28
 ### Fixed
