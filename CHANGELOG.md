@@ -37,6 +37,10 @@
 - Added check for unknown keys in `settings.ADMIN_REGISTRAR` config dict.
 - Added application init check validation of all given cvars (for fast fail).
 
+## [0.2.2] - 2026-11-16
+### Fixed
+- `AdminRegistrar._get_models_to_register` now uses `self._app.label` instead `self._app.name` to get app, because `apps.get_app_config` store apps by `label`, not by `name`.
+
 ## [0.2.1] - 2026-07-28
 ### 🐛 Fixed
 - Issue #2: `first_mro_match_resolver` now does not returning base `ModelAdmin` if seen some mixin in model mro.
