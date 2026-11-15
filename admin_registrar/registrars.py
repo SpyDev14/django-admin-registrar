@@ -235,7 +235,7 @@ class AdminRegistrar:
 		return f"{START_LOG_TEXT} {middle_log_text} {ADMIN_COLOR}{typename(admin_class)}{Fore.RESET} admin class."
 
 	def _get_models_to_register(self) -> Iterator[type[Model]]:
-		return apps.get_app_config(self._app.name).get_models()
+		return apps.get_app_config(self._app.label).get_models()
 
 	def _log_registering(self, msg: object) -> None:
 		_logger.log(self._registering_log_level, msg)
