@@ -198,14 +198,23 @@ class AdminRegistrar:
 
 	def _try_register_on_site(self, model: type[Model], admin_class: type[ModelAdmin]) -> None:
 		if self._is_model_registered(model):
-			COLOR = self._conf.REGISTERING_LOG_COLORS.already_registered
+			AR_COLOR = self._conf.REGISTERING_LOG_COLORS.already_registered
+			M_COLOR = self._conf.REGISTERING_LOG_COLORS.model
+			APP_COLOR = self._conf.REGISTERING_LOG_COLORS.app
+			ADMIN_COLOR = self._conf.REGISTERING_LOG_COLORS.admin_class
 			_logger.warning(
-				f"{COLOR}Model {typename(model)} from {model._meta.app_label} already registered.{Fore.RESET} "
-				f"Automatic registration by {typename(admin_class)} admin class skipped."
+				f"Model {M_COLOR}{typename(model)}{Fore.RESET} from {APP_COLOR}{model._meta.app_label}{Fore.RESET} "
+				f"{AR_COLOR}already registered.{Fore.RESET} Automatic registration by {ADMIN_COLOR}{typename(admin_class)} "
+				f"{Fore.RESET} admin class skipped."
 			)
 			return
 
 		self._register_on_site(model, admin_class)
+		self._log_registering(
+			self._make_log_message(model, was="hidden")
+			if admin_class in self._hidden_models
+			else self._make_log_message(model, admin_class=admin_class)
+		)
 
 	def _resolve_default_admin_for(self, model: type[Model]) -> type[ModelAdmin]:
 		return self._conf.DEFAULT_ADMINS_RESOLVER(model, self._conf.ADMINS_FOR_MODELS)
@@ -276,11 +285,6 @@ class AdminRegistrar:
 			admin_class = self._resolve_admin_for(model_class)
 
 			self._try_register_on_site(model_class, admin_class)
-			self._log_registering(
-				self._make_log_message(model_class, was="hidden")
-				if admin_class in self._hidden_models
-				else self._make_log_message(model_class, admin_class=admin_class)
-			)
 
 		self._registration_performed = True
 
