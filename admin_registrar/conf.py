@@ -13,7 +13,7 @@ import django.contrib.admin
 
 from admin_registrar.internal.unset import UNSET, UnsetT
 from admin_registrar.internal.types import one_or_seq_to_seq, ReadOnlySet
-from admin_registrar.internal import conf_defaults, typename
+from admin_registrar.internal import typename
 from admin_registrar.internal.verbose import verb_list
 from admin_registrar.types import DefaultAdminsResolver, AdminRegistry
 
