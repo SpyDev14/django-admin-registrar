@@ -286,6 +286,7 @@ def _importable_processor(raw, cvar: _CVarInfo):
 #         process_factory,
 #         DataclassProcessor(Colors),
 #     ])
+# (i leave its here, because i add a pipeline, but no use them how i want)
 
 def _importable_factory_processor(raw, cvar: _CVarInfo):
 	factory = _importable_processor(raw, cvar)
@@ -377,30 +378,6 @@ def _validate_value_in(enum: ReadOnlySet[_T]):
 
 
 # MARK: Config def
-# Maybe add to Config constructor required arg Mapping[str, Any]?
-# And use them in CVar instead hardcoded _CONFIG_DICT in _get_value.
-# This add abillity to local overrides.
-
-# Example:
-# here:
-# > config = Config(_CONFIG_DICT) // global
-# in some admin.py:
-# > registrar = AdminRegistrar(
-# >     config = Config({
-# >         **conf.get_config_dict(),
-# >         'DEFAULT_ADMINS_RESOLVER': 'src.orders.admin.resolvers.DefaultAdminsResolverForOrders'
-# >     })
-# > )
-
-# But.. hmm...
-# I wants to see local overrides like that:
-# > registrar = AdminRegistrar(
-# >     config = Config({
-# >         **conf.get_config_dict(),
-# >         Config.DEFAULT_ADMINS_RESOLVER: DefaultAdminsResolverForOrders
-# >     })
-# > )
-# need to think about it.
 _RegisteringLogColorsTypeRef = _TypeRef["RegisteringLogColors"]('admin_registrar.dataclasses.RegisteringLogColors')
 class Config(_BaseConfig):
 	ADMINS_FOR_MODELS: _CVar[Any] = _CVar(
