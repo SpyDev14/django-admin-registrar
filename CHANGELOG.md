@@ -10,7 +10,8 @@
 ### ✨ Added
   -->
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
+## [0.3.0] - 2026-11-16
 ### 💥 Breaking Changes
 - `AdminRegistrar.__init__` kwargs dublicate `Config` cvars was removed, use `config` by `config.with_overrides(...)`.
 - `DefaultAdminsResolver` signature is changed. Was: `(type[Model]) -> type[ModelAdmin]`, now: `(type[Model], Any) -> type[ModelAdmin]`. Second arg (`Any`) is `config.ADMINS_FOR_MODELS`. `ADMINS_FOR_MODELS` now can be anything, and will be given as second arg to used default admins resolver.
@@ -31,7 +32,7 @@
 
 ### ✨ Added
 - `AdminRegistrar` registering now write warning on attempt to register already registered model.
-- Added `AdminRegistry` type: now you can specify special admin registry for register models in admin site (before was `django.contrib.admin:sire` uses directly).
+- Added `AdminRegistry` type: now you can specify special admin registry for register models in admin site (before `django.contrib.admin:site` was used directly).
 - Added `AdminRegistry.defer_registration`: now you can defer registration to App ready event (`YourAppConfig.ready` method will be wrapped). Previously this had to be done manually.
 - Added `Config` local overrides support: now you cah pass partial overrided `Config` to `AdminRegister` instead kwargs.
 - Added check for unknown keys in `settings.ADMIN_REGISTRAR` config dict.
