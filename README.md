@@ -19,10 +19,6 @@
 - Attempt to re-register admins by AdminRegistrar now throws `RuntimeError`.
 
 ## About package
-### English
-> [!warning]
-> This README is a "quick draft" – I'm very busy and not yet ready for the final release of the package. I plan to provide detailed documentation for each feature. Thank you for your understanding.
-
 This package simplifies the registration of Django models in the admin site. It registers all models of a given app (`AppConfig`), allowing you to define default admin classes (`ModelAdmin`) for models and avoid having to manually register each newly added model according to project-wide rules. For example, instead of manually registering every `SingletonModel` subclass (from `django-solo`) with `SingletonModelAdmin`, you can specify in the package settings:
 
 ```python
@@ -48,36 +44,8 @@ The package also offers an additional feature: "hidden models". This is a specia
 
 For configuring autoregister `AdminRegistrar` has too many methods (and decorators). Enjoy!
 
-### Russian / Русский
-> [!warning]
-> Это readme "на скорую руку" - я очень занят и ещё не готов к окончательной публикации пакета. В планах подробная документация по каждой фиче проекта. Спасибо за понимание.
-
-Этот пакет для удобной регистрации моделей (`Model`) в админ-панели (`admin-site`) `Django`. Он регистрирует все модели переданного приложения (`AppConfig`) позволяя определить админ-классы (`ModelAdmin`) для моделей по умолчанию и не регистрировать отдельно новую добавленную модель по установленным в проекте правилам. То есть, вместо ручной регистрации каждой модели-подтипа `SingletonModel` из `django-solo` под `SingletonModelAdmin` вы можете указать в насройках пакета следующее:
-```python
-# settings.py
-ADMIN_REGISTRAR = {
-    'ADMINS_FOR_MODELS': {
-        'solo.models.SingletonModel': 'solo.admin.SingletonModelAdmin'
-    }
-}
-```
-```python
-# admin.py
-from admin_registrar import AdminRegistrar
-from src.apps.products.apps import ProductsConfig
-
-registrar = AdminRegistrar(ProductsConfig)
-registrar.register()
-```
-
-И теперь по умолчанию все `SingletonModel` будут регистрироваться под `SingletonModelAdmin`.
-
-Также у проекта есть дополнительная фича: "скрытые модели". Это специальный шорткат для регистрации модели под `HiddenAdmin` - специального админ-класса, который регистрирует модель в админ панели, но не отображает её, что позволяет производить все CRUD операции над моделью, но не засорять общий список моделей. Удобно, если у вас есть модель "Тип характеристики продукта" и "Характеристика продукта", но используются они только в продукте и создавать / изменять / удалять вы их хотите из формы изменения продукта.
-
-Для настройки авторегистрации `AdminRegistrar` имеет множество методов (в том числе декораторных). Дерзайте!
-
 ## Road-map to v1.0
 - Adding a normal docs (docstrings and re-docs)
 - Adding a tests (manual testing is bruh)
-- Adding cool default admins resolver with advanced model specifiers (like `OrderedModel` + `MPTTModel` -> `OrderedMPTTModel`) and admin auto-generating (`<specifier>` -> `<admin bases>`, instead ambigous concrete class)
+- Adding cool default admins resolver with advanced model specifiers (like `OrderedModel` + `MPTTModel` -> `OrderedMPTTModelAdmin`) and admin auto-generating (`OrderedModel` + `MPTTModel` -> `OrderedModelAdmin` + `MPTTModelAdmin`)
 - Add "Patch" admins, instead `set_admin_for_model`, for use combination of explicit admin class and implicit default admin (by specifiers).
