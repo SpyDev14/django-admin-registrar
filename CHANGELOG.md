@@ -11,6 +11,10 @@
   -->
 
 <!-- ## [Unreleased] -->
+## [0.3.1] - 2026-11-17
+### 🐛 Fixed
+- Fixed "is hidden" detect in making log message in `AdminRegistrar._try_register_on_site`
+
 ## [0.3.0] - 2026-11-16
 ### 💥 Breaking Changes
 - `AdminRegistrar.__init__` kwargs dublicate `Config` cvars was removed, use `config` by `config.with_overrides(...)`.
