@@ -141,6 +141,17 @@ class _CVarInfo:
 _CVarProcessor: TypeAlias = Callable[[Any, _CVarInfo], Any | NoReturn]
 _CVarValidator: TypeAlias = Callable[[Any, _CVarInfo], None | NoReturn]
 
+# TODO: add implicit type-check based on Generic annotation (CVar[...])
+# How to do:
+# 1. If implicit_type_check is False - do nothing
+# 2. Gets config class (next named owner)
+# 3. Try get owner.__annotations__[self.name] (next named annotation)
+# 4. If not exists: raise exception and requere add annotation or explicit
+#    type-check, or set implicit_type_check kwarg to False
+# 5. If len(annotation.__args__) != 1: raise
+# 6. Expected type is annotation.__args__[0] (next named as expected_type)
+# 7. If expected_type is `GenericAlias` ...
+#    TODO: type[...], Sequence[...] and other returns GenericAlias
 class _CVar(Generic[_T]):
 	@overload
 	def __init__(self, *,
@@ -165,6 +176,8 @@ class _CVar(Generic[_T]):
 		processors: Sequence[_CVarProcessor] = (),
 		# validate CVar get_value result is correct: check type, check value, etc.
 		validators: Sequence[_CVarValidator],
+		# TODO: idea describet above
+		# implicit_type_check: bool = True,
 	) -> None:
 		match (sum((default is not UNSET, default_factory is not None, raw_default is not None))):
 			case 0: raise ValueError(f"Default value for CVar should be specified.")
