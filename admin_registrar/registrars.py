@@ -212,7 +212,7 @@ class AdminRegistrar:
 		self._register_on_site(model, admin_class)
 		self._log_registering(
 			self._make_log_message(model, was="hidden")
-			if admin_class in self._hidden_models
+			if model in self._hidden_models
 			else self._make_log_message(model, admin_class=admin_class)
 		)
 
